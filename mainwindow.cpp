@@ -39,6 +39,7 @@ MainWindow::MainWindow() :
     selectionList.push_back(ui->hAutoBtn);
     selectionList.push_back(ui->pAutoBtn);
     selectionList.push_back(ui->kAutoBtn);
+    selectionList.push_back(ui->lAutoBtn);
 
     createActions();
     createMenus();
@@ -51,6 +52,7 @@ MainWindow::MainWindow() :
     ui->hAutoBtn->setShortcut(tr("1"));
     ui->pAutoBtn->setShortcut(tr("2"));
     ui->kAutoBtn->setShortcut(tr("3"));
+    ui->lAutoBtn->setShortcut(tr("4"));
 }
 
 MainWindow::~MainWindow()

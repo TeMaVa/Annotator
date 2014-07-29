@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>edellinen (c)</string>
+     <string>edellinen (&amp;c)</string>
     </property>
     <property name="icon">
      <iconset resource="annotator.qrc">
@@ -45,7 +45,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>seuraava (v)</string>
+     <string>seuraava (&amp;v)</string>
     </property>
     <property name="icon">
      <iconset resource="annotator.qrc">
@@ -94,7 +94,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>&amp;Kuorma-auto (3)</string>
+     <string>Kuorma-auto (&amp;3)</string>
     </property>
    </widget>
    <widget class="QPushButton" name="nnforgeBtn">
@@ -201,7 +201,20 @@
      </rect>
     </property>
     <property name="text">
-     <string>hylkää (n)</string>
+     <string>hylkää (&amp;n)</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="lAutoBtn">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>320</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Linja-auto (&amp;4)</string>
     </property>
    </widget>
   </widget>
