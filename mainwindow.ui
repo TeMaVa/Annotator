@@ -62,7 +62,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Henkilöauto (1)</string>
+     <string>Henkilöauto (&amp;1)</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -78,7 +78,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Pakettiauto (2)</string>
+     <string>Pakettiauto (&amp;2)</string>
     </property>
     <property name="checked">
      <bool>false</bool>
@@ -94,7 +94,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Kuorma-auto (3)</string>
+     <string>&amp;Kuorma-auto (3)</string>
     </property>
    </widget>
    <widget class="QPushButton" name="nnforgeBtn">
@@ -191,6 +191,19 @@
      <string/>
     </property>
    </widget>
+   <widget class="QPushButton" name="ignoreBtn">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>50</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>hylkää (n)</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -198,7 +211,7 @@
      <x>0</x>
      <y>0</y>
      <width>1084</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
@@ -218,4 +231,3 @@
  </resources>
  <connections/>
 </ui>
-

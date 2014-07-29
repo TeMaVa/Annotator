@@ -47,6 +47,7 @@ MainWindow::MainWindow() :
     ui->nnforgeBtn->setShortcut(tr("n"));
     ui->edellinenBtn->setShortcut(tr("c)"));
     ui->seuraavaBtn->setShortcut(tr("v"));
+    ui->ignoreBtn->setShortcut((tr("n")));
     ui->hAutoBtn->setShortcut(tr("1"));
     ui->pAutoBtn->setShortcut(tr("2"));
     ui->kAutoBtn->setShortcut(tr("3"));
@@ -101,7 +102,7 @@ void MainWindow::connectAll()
     //connect(ui->nnforgeBtn, SIGNAL(clicked()), this, SLOT(on_nnforgeBtn_clicked()));
     connect(ui->edellinenBtn, SIGNAL(clicked()), this, SLOT(loadPrev()));
     connect(ui->seuraavaBtn, SIGNAL(clicked()), this, SLOT(loadNext()));
-
+    connect(ui->ignoreBtn, SIGNAL(clicked()), this, SLOT(ignoreImg()));
 }
 
 void MainWindow::about()
@@ -306,4 +307,32 @@ void MainWindow::readAnnotation(boost::filesystem::ifstream &stream)
 void MainWindow::on_nnforgeBtn_clicked()
 {
     std::system("python predict_autoclasses.py");
+}
+
+void MainWindow::ignoreImg()
+{
+    if(imgPaths.empty())
+    {
+        QMessageBox::information(this,QString("Virhe"),QString("Kuvia ei ole ladattu"));
+        return;
+    }
+    if (imgIt >= imgPaths.begin() && imgIt < imgPaths.end())
+    {
+        if (QMessageBox::warning(this,QString("Varoitus"),QString("Kuva poistetaan annotaatiotiedostosta ja levyltä. Oletko varma?"),
+                             QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Cancel) == QMessageBox::Cancel)
+        {
+            return;
+        }
+        else
+        {
+            boost::filesystem::path currPath = imgPaths.at(imgIt - imgPaths.begin());
+            file2class.erase(currPath.string());
+            boost::filesystem::remove(currPath);
+            path_vec::iterator yeOlde = imgIt;
+            imgIt++;
+            imgPaths.erase(yeOlde);
+            imgIt--;
+            loadNext();
+        }
+    }
 }

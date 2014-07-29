@@ -44,7 +44,7 @@ private:
     QPlainTextEdit* textEdit;
 
     path_vec imgPaths;
-    path_vec::const_iterator imgIt;
+    path_vec::iterator imgIt;
     boost::filesystem::ofstream annotationStream;
     boost::filesystem::path annotationPath;
     std::vector<QRadioButton*>selectionList;
@@ -63,6 +63,7 @@ private slots:
     void about();
     void loadNext(bool extraCheck = false);
     void loadPrev();
+    void ignoreImg();
 
     void on_nnforgeBtn_clicked();
 };
