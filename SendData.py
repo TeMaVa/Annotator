@@ -48,7 +48,7 @@ try:
     
     print [elem.encode("hex") for elem in message]
     
-    messagelength = sys.getsizeof(message)
+    messagelength = len(message)
     print messagelength
     sendlength = struct.Struct('<L')
     
