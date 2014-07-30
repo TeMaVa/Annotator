@@ -45,7 +45,9 @@ try:
     
     # Send data
     message = ET.tostring(request)
-    print message[-1]
+    
+    print [elem.encode("hex") for elem in message]
+    
     messagelength = sys.getsizeof(message)
     print messagelength
     sendlength = struct.Struct('<L')
