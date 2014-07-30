@@ -24,7 +24,7 @@ heightsub = ET.SubElement(imagesub,"height")
 heightsub.text = "576"
 
 XML = ET.ElementTree(request)
-XML.write("try.xml")
+#XML.write("try.xml")
 
 
 
@@ -45,8 +45,8 @@ try:
     
     # Send data
     message = ET.tostring(request)
+    print message
     messagelength = sys.getsizeof(message)
-    print messagelength
     sendlength = struct.Struct('<L')
     
     #YLIVUOTO???
