@@ -26,6 +26,11 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         
+        #RECEIVE IMAGE NUMBER
+
+        self.data = self.request.recv(4).strip()
+        imagenumber = int(self.data)        
+        
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(4).strip()
         print "Connection from {}:".format(self.client_address[0])
@@ -47,20 +52,22 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
                 
         
         rdata = ""
-#        
-        while unpacked_length > sys.getsizeof(rdata):
+#                
+        
+        while unpacked_length > len(rdata):
             self.data = self.request.recv(1024).strip()
             print self.data
-            rdata = rdata.join(self.data)
+            rdata = rdata + self.data
             print rdata
-            
+             
         
-        if (unpacked_length != sys.getsizeof(rdata)):
+        if (unpacked_length != len(rdata)):
             print "Package incomplete"
         
         
         XML = ET.fromstring(rdata)
-        print XML
+        
+        
         #XML.getroot.write("received.xml")
         #self.data = self.request.recv(4).strip()
         
@@ -79,7 +86,8 @@ if __name__ == "__main__":
     
     # Activate the server; this will keep running until you
     # interrupt the program with Ctrl-C
-    print "serve"
-    server.serve_forever()
+    print "Server on"
+    
+    server.handle_request()
 
     

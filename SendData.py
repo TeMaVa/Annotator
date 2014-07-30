@@ -23,6 +23,9 @@ widthsub.text = "768"
 heightsub = ET.SubElement(imagesub,"height")
 heightsub.text = "576"
 
+rawdatasub = ET.SubElement(imagesub,"rawdata")
+rawdatasub.text = "TÄHÄN KUVADATA"
+
 XML = ET.ElementTree(request)
 #XML.write("try.xml")
 
@@ -40,6 +43,11 @@ print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
 print server_address
+
+# SEND IMAGE NUMBER
+
+imagenumber = '1'
+sock.sendall(imagenumber)
 
 try:
     
