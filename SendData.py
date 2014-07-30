@@ -46,6 +46,7 @@ try:
     # Send data
     message = ET.tostring(request)
     messagelength = sys.getsizeof(message)
+    print messagelength
     sendlength = struct.Struct('<L')
     
     #YLIVUOTO???
