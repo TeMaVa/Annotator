@@ -44,8 +44,8 @@ print server_address
 try:
     
     # Send data
-    message = ET.tostring(request,encoding = 'UTF-8')
-    print message
+    message = ET.tostring(request)
+    print message[-1]
     messagelength = sys.getsizeof(message)
     print messagelength
     sendlength = struct.Struct('<L')
