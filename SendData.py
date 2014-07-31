@@ -25,6 +25,8 @@ def sendImagesAsXML(files, sock):
         img = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img == None:
             raise IOError("could not read image "+filename)
+        height = img.shape[0]
+        width = img.shape[1]
         vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
         strlist = ["%03d" % val for val in vek]
         concat = "".join(strlist)
@@ -34,10 +36,10 @@ def sendImagesAsXML(files, sock):
         imagesub = ET.SubElement(request,"image")
 
         widthsub = ET.SubElement(imagesub,"width")
-        widthsub.text = "768"
+        widthsub.text = str(width)
 
         heightsub = ET.SubElement(imagesub,"height")
-        heightsub.text = "576"
+        heightsub.text = str(height)
 
         rawdatasub = ET.SubElement(imagesub,"rawdata")
         rawdatasub.text = encoded
@@ -46,10 +48,10 @@ def sendImagesAsXML(files, sock):
 
 if __name__ == '__main__':
 
-    # [filename]
-    unsupervisedAnnotFile = sys.argv[1]
-    f = open(unsupervisedAnnotFile, "r")
-    fl = [line if len(line) > 0 for line in list(f)]
+    # [(filename, class_label)]
+    annotFile = sys.argv[1]
+    f = open(annotFile, "r")
+    fl = filter(lambda line: len(line) > 0, [line.split(",")[0] for line in list(f)])
 
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
