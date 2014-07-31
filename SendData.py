@@ -13,6 +13,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import cv2
 import base64
+import time
 
 def sendImagesAsXML(files, sock):
     """
@@ -50,11 +51,12 @@ def sendImagesAsXML(files, sock):
         
         packedlength = sendlength.pack(messagelength)
     
-    
         print "Sending length of message: %i" % messagelength
         sock.sendall(packedlength)
 
         sock.sendall(ET.tostring(request))
+
+        time.sleep(0.5)
 
 if __name__ == '__main__':
 
@@ -68,7 +70,8 @@ if __name__ == '__main__':
 
     # Connect the socket to the port where the server is listening
 
-    server_address = ('130.230.177.59', 10000)
+    #server_address = ('130.230.177.59', 10000)
+    server_address = ('localhost', 10000)
     print >>sys.stderr, 'connecting to %s port %s' % server_address
     sock.connect(server_address)
 

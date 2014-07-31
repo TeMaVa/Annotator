@@ -10,6 +10,7 @@ import sys
 import time
 from multiprocessing import Process
 import threading
+import thread
 import struct
 import xml.etree.ElementTree as ET
 
@@ -23,7 +24,10 @@ import cv2
 import SocketServer
 
 
-
+def showImage(mat):
+    cv2.imshow('image',mat)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
 
 def ImageInitialize(XMLstring):
     
@@ -48,9 +52,7 @@ def ImageInitialize(XMLstring):
     arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
     mat = np.reshape(arr, (height, width, 3))  
     
-    cv2.imshow('image',mat)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    thread.start_new_thread(showImage, (mat,))
     ###            
     
     
@@ -81,6 +83,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         XML = ET.fromstring(self.data)
         n_images = int(XML[0].text)
         ####
+
+        print "Receiving {0} images".format(n_images)
         
         for i in range(n_images):        
         
@@ -104,13 +108,17 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             #HUONO VALINTA
             recvalue = 1024
             loopnumber = int(np.ceil((float(unpacked_length)/float(recvalue))))
-            print loopnumber
+            print "Loopnumber = {0}".format(loopnumber)
              
             for i in range(loopnumber):
                 self.data = self.request.recv(recvalue).strip()
                 rdata = rdata + self.data
     
-            print len(rdata)
+            print "Length of received data: {0}".format(len(rdata))
+
+            print "first 50 chars of received data:\n{0}".format(rdata[0:50])
+
+            print "last 50 chars of received data:\n{0}".format(rdata[-50:])
             
             if (unpacked_length != len(rdata)):
                 print "Package incomplete"
