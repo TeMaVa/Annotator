@@ -54,14 +54,15 @@ def ImageInitialize(XMLstring):
 
     #Resize image using openCV
     
-    targetsize = (192,144)
-    resized_image = cv2.resize(mat,targetsize)
+    #targetsize = (192,144)
+    #resized_image = cv2.resize(mat,targetsize)
     
-    cv2.imshow('image',resized_image)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    #cv2.imshow('image',resized_image)
+    #cv2.waitKey()
+    #cv2.destroyAllWindows()
     ###            
     
+    thread.start_new_thread(showImage, (mat,))
     
     
     
