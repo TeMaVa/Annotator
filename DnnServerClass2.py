@@ -12,8 +12,26 @@ from multiprocessing import Process
 import threading
 import struct
 import xml.etree.ElementTree as ET
+from xml.dom.minidom import parse,parseString
 
 import SocketServer
+
+
+import numpy
+
+
+def ImageInitialize(XMLstring):
+    
+    minidom = parseString(XMLstring)
+    height = int(minidom.getElementsByTagName('height')[0].childNodes[0].data)
+    width = int(minidom.getElementsByTagName('width')[0].childNodes[0].data)
+    #rawdata?
+    rawdata = numpy.random.random(((height, width, 3)))
+    
+    targetsize = [576,768]
+    
+
+
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
     """
@@ -54,6 +72,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         rdata = ""
 #                
         
+        #HUONO VALINTA
+            
         while unpacked_length > len(rdata):
             self.data = self.request.recv(1024).strip()
             print self.data
@@ -65,10 +85,9 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             print "Package incomplete"
         
         
-        XML = ET.fromstring(rdata)
+        XML = ET.ElementTree(ET.fromstring(rdata))
         
-        
-        #XML.getroot.write("received.xml")
+#        XML.write("received.xml")
         #self.data = self.request.recv(4).strip()
         
 
