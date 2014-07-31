@@ -33,7 +33,7 @@ def ImageInitialize(XMLstring):
 #    #rawdata?
 #    rawdata = np.random.random(((height, width, 3)))
     
-    XML = ET.fromstring(rdata)     
+    XML = ET.fromstring(XMLstring)  
             
     # rawdata luetaan np.array:ksi seuraavasti
     # kuvia tulee n_images kappaletta, joten kannattaa hoitaa silmukassa
@@ -46,9 +46,10 @@ def ImageInitialize(XMLstring):
     decoded = base64.b64decode(rawdata)
     l = len(decoded)
     arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
-    mat = np.reshape(arr, (height, width, 3))
+    mat = np.reshape(arr, (height, width, 3))  
+    
     cv2.imshow('image',mat)
-    cv2.waitKey(0)
+    cv2.waitKey()
     cv2.destroyAllWindows()
     ###            
     
@@ -75,48 +76,47 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         #   <images>n_images</images>
         # </begin>
         ####
-        XML = ET.fromstring(packet)
+        print "Connection from {}:".format(self.client_address[0])
+        self.data = self.request.recv(1024).strip()
+        XML = ET.fromstring(self.data)
         n_images = int(XML[0].text)
         ####
-
-        self.data = self.request.recv(4).strip()
-        imagenumber = int(self.data)        
         
-        # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(4).strip()
-        print "Connection from {}:".format(self.client_address[0])
+        for i in range(n_images):        
         
-        
-        
-        # Check if message length has been received correctly
-        if len(self.data) != 4:
-            print "ERROR: Message length not received correctly"
+            # self.request is the TCP socket connected to the client
+            self.data = self.request.recv(4).strip()
             
-        sc = struct.Struct('<L')
-        unpacked_length = sc.unpack(self.data)
-        
-        #Necessary?
-        unpacked_length = long(unpacked_length[0])
-        
-        print "Message length received:%i" % unpacked_length
-        
-
-        rdata = ""
+            # Check if message length has been received correctly
+            if len(self.data) != 4:
+                print "ERROR: Message length not received correctly"
                 
-        
-        #HUONO VALINTA
+            sc = struct.Struct('<L')
+            unpacked_length = sc.unpack(self.data)
             
-        while unpacked_length > len(rdata):
-            self.data = self.request.recv(1024).strip()
-            print self.data
-            rdata = rdata + self.data
-            print rdata
+            #Necessary?
+            unpacked_length = long(unpacked_length[0])
+            
+            print "Message length received:%i" % unpacked_length
+            
+    
+            rdata = ""
+            #HUONO VALINTA
+            recvalue = 1024
+            loopnumber = int(np.ceil((float(unpacked_length)/float(recvalue))))
+            print loopnumber
              
-        
-        if (unpacked_length != len(rdata)):
-            print "Package incomplete"
-        
-        ImageInitialize(rdata)
+            for i in range(loopnumber):
+                self.data = self.request.recv(recvalue).strip()
+                rdata = rdata + self.data
+    
+            print len(rdata)
+            
+            if (unpacked_length != len(rdata)):
+                print "Package incomplete"
+            
+            ImageInitialize(rdata)
+            
 #        XML = ET.ElementTree(ET.fromstring(rdata))
 
         

@@ -43,6 +43,16 @@ def sendImagesAsXML(files, sock):
 
         rawdatasub = ET.SubElement(imagesub,"rawdata")
         rawdatasub.text = encoded
+        
+        messagelength = len(ET.tostring(request))
+        print messagelength
+        sendlength = struct.Struct('<L')
+        
+        packedlength = sendlength.pack(messagelength)
+    
+    
+        print "Sending length of message: %i" % messagelength
+        sock.sendall(packedlength)
 
         sock.sendall(ET.tostring(request))
 
@@ -74,6 +84,7 @@ if __name__ == '__main__':
     imagessub.text = str(len(fl))
 
     sock.sendall(ET.tostring(begin))
+   
 
     # wait for ok from server, send images, read prediction in separate thread
 
@@ -83,20 +94,8 @@ if __name__ == '__main__':
 
     # try:
         
-    #     # Send data
-    #     message = ET.tostring(request)
-        
-    #     messagelength = len(message)
-    #     print messagelength
-    #     sendlength = struct.Struct('<L')
-        
-    #     #YLIVUOTO???
-        
-    #     packedlength = sendlength.pack(messagelength)
-        
-        
-    #     print "Sending length of message: %i" % messagelength
-    #     sock.sendall(packedlength)
+         # Send data
+
     #     print "Sending the message"
     #     sock.sendall(message)
     #     print "Message sent"
