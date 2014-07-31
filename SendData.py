@@ -14,10 +14,11 @@ import numpy as np
 import cv2
 import base64
 
-def sendImagesAsXML(files):
+def sendImagesAsXML(files, sock):
     """
     Reads each image file in a list and sends contents over network
     files : list of file names
+    socket : where to send data
     returns : nothing
     """
     for filename in files:
@@ -25,7 +26,23 @@ def sendImagesAsXML(files):
         if img == None:
             raise IOError("could not read image "+filename)
         vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
-        # work out base64
+        strlist = ["%03d" % val for val in vek]
+        concat = "".join(strlist)
+        encoded = base64.b64encode(concat)
+
+        request = ET.Element("request")
+        imagesub = ET.SubElement(request,"image")
+
+        widthsub = ET.SubElement(imagesub,"width")
+        widthsub.text = "768"
+
+        heightsub = ET.SubElement(imagesub,"height")
+        heightsub.text = "576"
+
+        rawdatasub = ET.SubElement(imagesub,"rawdata")
+        rawdatasub.text = encoded
+
+        sock.sendall(ET.tostring(request))
 
 if __name__ == '__main__':
 
@@ -34,29 +51,8 @@ if __name__ == '__main__':
     f = open(unsupervisedAnnotFile, "r")
     fl = [line if len(line) > 0 for line in list(f)]
 
-    # Create example XML
-
-    request = ET.Element("request")
-    imagesub = ET.SubElement(request,"image")
-
-    widthsub = ET.SubElement(imagesub,"width")
-    widthsub.text = "768"
-
-    heightsub = ET.SubElement(imagesub,"height")
-    heightsub.text = "576"
-
-    rawdatasub = ET.SubElement(imagesub,"rawdata")
-    rawdatasub.text = "TÄHÄN KUVADATA"
-
-    XML = ET.ElementTree(request)
-    #XML.write("try.xml")
-
-
-
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-
 
     # Connect the socket to the port where the server is listening
 
@@ -79,39 +75,39 @@ if __name__ == '__main__':
 
     # wait for ok from server, send images, read prediction in separate thread
 
-    sendImagesAsXML(fl)
+    sendImagesAsXML(fl, sock)
 
+    sock.close()
 
+    # try:
+        
+    #     # Send data
+    #     message = ET.tostring(request)
+        
+    #     messagelength = len(message)
+    #     print messagelength
+    #     sendlength = struct.Struct('<L')
+        
+    #     #YLIVUOTO???
+        
+    #     packedlength = sendlength.pack(messagelength)
+        
+        
+    #     print "Sending length of message: %i" % messagelength
+    #     sock.sendall(packedlength)
+    #     print "Sending the message"
+    #     sock.sendall(message)
+    #     print "Message sent"
 
-    try:
-        
-        # Send data
-        message = ET.tostring(request)
-        
-        messagelength = len(message)
-        print messagelength
-        sendlength = struct.Struct('<L')
-        
-        #YLIVUOTO???
-        
-        packedlength = sendlength.pack(messagelength)
-        
-        
-        print "Sending length of message: %i" % messagelength
-        sock.sendall(packedlength)
-        print "Sending the message"
-        sock.sendall(message)
-        print "Message sent"
+    # #    
+    # #    amount_received = 0
+    # #    amount_expected = len(message)
+    # #    
+    # #    while amount_received < amount_expected:
+    # #        data = sock.recv(16)
+    # #        amount_received += len(data)
+    # #        print >>sys.stderr, 'received "%s"' % data
 
-    #    
-    #    amount_received = 0
-    #    amount_expected = len(message)
-    #    
-    #    while amount_received < amount_expected:
-    #        data = sock.recv(16)
-    #        amount_received += len(data)
-    #        print >>sys.stderr, 'received "%s"' % data
-
-    finally:
-        print >>sys.stderr, 'Closing socket'
-        sock.close()
+    # finally:
+    #     print >>sys.stderr, 'Closing socket'
+    #     sock.close()

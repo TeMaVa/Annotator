@@ -49,7 +49,10 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         
         print "Message length received:%i" % unpacked_length
         
-                
+        # rawdata luetaan np.array:ksi seuraavasti
+        decoded = base64.b64decode(rawdata)
+        l = len(decoded)
+        arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
         
         rdata = ""
 #                
