@@ -12,6 +12,8 @@ from multiprocessing import Process
 import threading
 import struct
 import xml.etree.ElementTree as ET
+import numpy as np
+import base64
 
 import SocketServer
 
@@ -26,7 +28,15 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         
-        #RECEIVE IMAGE NUMBER
+        #receive number of images
+        # first packet:
+        # <begin>
+        #   <images>n_images</images>
+        # </begin>
+        ####
+        XML = ET.fromstring(packet)
+        n_images = int(XML[0].text)
+        ####
 
         self.data = self.request.recv(4).strip()
         imagenumber = int(self.data)        
@@ -50,10 +60,13 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         print "Message length received:%i" % unpacked_length
         
         # rawdata luetaan np.array:ksi seuraavasti
+        # kuvia tulee n_images kappaletta, joten kannattaa hoitaa silmukassa
+        ###
         decoded = base64.b64decode(rawdata)
         l = len(decoded)
         arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
-        
+        ###
+
         rdata = ""
 #                
         
