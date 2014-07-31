@@ -308,7 +308,33 @@ void MainWindow::readAnnotation(boost::filesystem::ifstream &stream)
 
 void MainWindow::on_nnforgeBtn_clicked()
 {
-    std::system("python predict_autoclasses.py");
+    if(imgPaths.empty())
+    {
+        QMessageBox::information(this,QString("Virhe"),QString("Kuvia ei ole ladattu"));
+        return;
+    }
+    // read all image paths from file2class
+    path_vec annotated;
+    std::map<std::string, int>::iterator it;
+    for (it = file2class.begin(); it != file2class.end(); it++)
+    {
+        annotated.push_back(boost::filesystem::path(it->first));
+    }
+    // calculate imgPaths - file2class
+    path_vec difference_set(imgPaths.size());
+    path_vec::iterator it2;
+    it2 = std::set_difference(imgPaths.begin(), imgPaths.end(), annotated.begin(), annotated.end(), difference_set.begin());
+    difference_set.resize(it2 - difference_set.begin());
+    // put to annotation file
+    std::ofstream outputStream;
+    outputStream.open("annotationUnsupervised.csv");
+    foreach_(boost::filesystem::path& elem, difference_set)
+    {
+        std::string filename = elem.string();
+        outputStream << filename << "," << 0 << std::endl;
+    }
+    outputStream.close();
+    std::system("python2 SendData.py annotationUnsupervised.csv");
 }
 
 void MainWindow::ignoreImg()
