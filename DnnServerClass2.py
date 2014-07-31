@@ -14,6 +14,7 @@ import struct
 import xml.etree.ElementTree as ET
 import numpy as np
 import base64
+import cv2
 
 import SocketServer
 
@@ -61,10 +62,19 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         
         # rawdata luetaan np.array:ksi seuraavasti
         # kuvia tulee n_images kappaletta, joten kannattaa hoitaa silmukassa
+        # XML = request-paketti
         ###
+        imageElem = XML[0]
+        width = int(imageElem[0].text)
+        height = int(imageElem[1].text)
+        rawdata = imageElem[2].text
         decoded = base64.b64decode(rawdata)
         l = len(decoded)
         arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
+        mat = np.reshape(arr, (height, width, 3))
+        cv2.imshow('image',mat)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         ###
 
         rdata = ""
