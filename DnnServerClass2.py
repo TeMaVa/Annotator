@@ -50,13 +50,20 @@ def ImageInitialize(XMLstring):
     decoded = base64.b64decode(rawdata)
     l = len(decoded)
     arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
-    mat = np.reshape(arr, (height, width, 3))  
+    mat = np.reshape(arr, (height, width, 3))
+
+    #Resize image using openCV
     
-    thread.start_new_thread(showImage, (mat,))
+    targetsize = (192,144)
+    resized_image = cv2.resize(mat,targetsize)
+    
+    cv2.imshow('image',resized_image)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
     ###            
     
     
-    targetsize = [576,768]
+    
     
 
 
@@ -122,6 +129,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             
             if (unpacked_length != len(rdata)):
                 print "Package incomplete"
+            
             
             ImageInitialize(rdata)
             
