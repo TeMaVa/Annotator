@@ -98,8 +98,12 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         
         for i in range(n_images):        
         
+            if len(next_buffer) > 0:
+                self.data = next_buffer[0:4]
+                next_buffer = next_buffer[4:]
             # self.request is the TCP socket connected to the client
-            self.data = self.request.recv(4).strip()
+            else:
+                self.data = self.request.recv(4).strip()
             
             # Check if message length has been received correctly
             if len(self.data) != 4:
