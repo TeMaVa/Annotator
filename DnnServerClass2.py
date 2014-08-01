@@ -20,6 +20,7 @@ import numpy as np
 import base64
 import cv2
 
+from scipy.io import loadmat,savemat
 
 import SocketServer
 
@@ -51,7 +52,8 @@ def ImageInitialize(XMLstring):
     l = len(decoded)
     arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
     mat = np.reshape(arr, (height, width, 3))
-
+    
+    
     #Resize image using openCV
     
     #targetsize = (192,144)
@@ -97,7 +99,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         for i in range(n_images):        
         
             # self.request is the TCP socket connected to the client
-            self.data = self.request.recv(4).strip()
+            self.data = self.request.recv(4)
             
             # Check if message length has been received correctly
             if len(self.data) != 4:
@@ -119,8 +121,17 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             print "Loopnumber = {0}".format(loopnumber)
              
             for i in range(loopnumber):
-                self.data = self.request.recv(recvalue).strip()
+                self.data = self.request.recv(recvalue)
+                self.data = self.data.strip()
                 rdata = rdata + self.data
+                
+    
+#            while True:
+#                self.data = self.request.recv(recvalue).strip()
+#                if self.data == '':
+#                    break
+#                rdata = rdata + self.data
+                
     
             print "Length of received data: {0}".format(len(rdata))
 

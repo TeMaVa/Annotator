@@ -71,6 +71,9 @@ if __name__ == '__main__':
     # Connect the socket to the port where the server is listening
 
     #server_address = ('130.230.177.59', 10000)
+    
+    # Johannes address 130.230.216.69 
+    
     server_address = ('localhost', 10000)
     print >>sys.stderr, 'connecting to %s port %s' % server_address
     sock.connect(server_address)
@@ -103,14 +106,7 @@ if __name__ == '__main__':
     #     sock.sendall(message)
     #     print "Message sent"
 
-    # #    
-    # #    amount_received = 0
-    # #    amount_expected = len(message)
-    # #    
-    # #    while amount_received < amount_expected:
-    # #        data = sock.recv(16)
-    # #        amount_received += len(data)
-    # #        print >>sys.stderr, 'received "%s"' % data
+
 
     # finally:
     #     print >>sys.stderr, 'Closing socket'
