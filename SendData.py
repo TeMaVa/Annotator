@@ -70,8 +70,9 @@ if __name__ == '__main__':
 
     # Connect the socket to the port where the server is listening
 
-    #server_address = ('130.230.177.59', 10000)
-    server_address = ('localhost', 10000)
+    #server_address = ('130.230.177.59', 10000) # vartiai6
+    server_address = ('960-lehmusvj.pit.cs.tut.fi', 10000) # lehmusvj
+    #server_address = ('localhost', 10000)
     print >>sys.stderr, 'connecting to %s port %s' % server_address
     sock.connect(server_address)
 

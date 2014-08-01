@@ -93,6 +93,8 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         ####
 
         print "Receiving {0} images".format(n_images)
+
+        next_buffer = ""
         
         for i in range(n_images):        
         
@@ -112,15 +114,27 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             print "Message length received:%i" % unpacked_length
             
     
-            rdata = ""
+            rdata = next_buffer
             #HUONO VALINTA
             recvalue = 1024
-            loopnumber = int(np.ceil((float(unpacked_length)/float(recvalue))))
-            print "Loopnumber = {0}".format(loopnumber)
+            received = 0
+            #loopnumber = int(np.ceil((float(unpacked_length)/float(recvalue))))
+            #print "Loopnumber = {0}".format(loopnumber)
              
-            for i in range(loopnumber):
+            #for i in range(loopnumber):
+            while True:
                 self.data = self.request.recv(recvalue).strip()
                 rdata = rdata + self.data
+                received = len(rdata)
+                #print "received: {0}".format(received)
+                if received >= unpacked_length:
+                    break
+
+            next_buffer = rdata[len(rdata)-(received-unpacked_length):]
+
+            print "next_buffer = {0}".format(next_buffer)
+
+            rdata = rdata[0:len(rdata)-(received-unpacked_length)]
     
             print "Length of received data: {0}".format(len(rdata))
 
