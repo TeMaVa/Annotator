@@ -1,1 +1,6 @@
 *.pro.user
+*.sln
+*.vcxproj
+*.vcxproj.*
+*.opensdf
+*.suo

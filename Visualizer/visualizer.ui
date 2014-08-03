@@ -6,35 +6,61 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>969</width>
-    <height>684</height>
+    <width>1080</width>
+    <height>995</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Visualizer</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QCustomPlot" name="widget" native="true">
+   <widget class="QCustomPlot" name="plotBox" native="true">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>390</y>
-      <width>271</width>
-      <height>181</height>
+      <x>270</x>
+      <y>690</y>
+      <width>561</width>
+      <height>211</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="kuvaBox">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>180</x>
       <y>70</y>
-      <width>521</width>
-      <height>271</height>
+      <width>768</width>
+      <height>574</height>
      </rect>
     </property>
     <property name="text">
      <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="edelBtn">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>340</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>edellinen</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="seurBtn">
+    <property name="geometry">
+     <rect>
+      <x>980</x>
+      <y>340</y>
+      <width>75</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>seuraava</string>
     </property>
    </widget>
   </widget>
@@ -43,8 +69,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>969</width>
-     <height>19</height>
+     <width>1080</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

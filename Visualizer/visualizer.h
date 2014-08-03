@@ -17,6 +17,19 @@ public:
 
 private:
     Ui::Visualizer *ui;
+	void connectAll();
+	void createMenus();
+	void createActions();
+	void open();
+
+	QMenu *fileMenu;
+	QMenu *helpMenu;
+	QAction *openAct;
+	QAction *exitAct;
+	QAction *aboutQtAct;
+private slots:
+	void seurBtnClick();
+	void edelBtnClick();
 };
 
 #endif // VISUALIZER_H
