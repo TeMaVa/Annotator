@@ -4,6 +4,8 @@
 #
 #-------------------------------------------------
 
+QMAKE_LFLAGS += -lboost_regex -lboost_filesystem -lboost_system
+
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport

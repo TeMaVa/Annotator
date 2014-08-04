@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="edelBtn">
@@ -70,7 +70,7 @@
      <x>0</x>
      <y>0</y>
      <width>1080</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
   </widget>
