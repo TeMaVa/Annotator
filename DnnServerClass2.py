@@ -49,9 +49,12 @@ def ImageInitialize(XMLstring):
     height = int(imageElem[1].text)
     rawdata = imageElem[2].text
     decoded = base64.b64decode(rawdata)
-    l = len(decoded)
-    arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
-    mat = np.reshape(arr, (height, width, 3))
+    decoded = np.fromstring(decoded,dtype=uint8)
+    print decoded[0:50]
+#    l = len(decoded)
+#    arr = np.uint8(map(lambda lst: "".join(lst), map(list,zip(decoded[0:l:3], decoded[1:l:3], decoded[2:l:3]))))
+    
+    mat = np.reshape(decoded, (height, width, 3))
     
     
     #Resize image using openCV

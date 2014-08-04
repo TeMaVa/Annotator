@@ -29,9 +29,10 @@ def sendImagesAsXML(files, sock):
         height = img.shape[0]
         width = img.shape[1]
         vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
-        strlist = ["%03d" % val for val in vek]
-        concat = "".join(strlist)
-        encoded = base64.b64encode(concat)
+        vekstring = vek.tostring()
+#        strlist = ["%03d" % val for val in vek]
+#        concat = "".join(strlist)       
+        encoded = base64.b64encode(vekstring)
 
         request = ET.Element("request")
         imagesub = ET.SubElement(request,"image")
@@ -56,7 +57,7 @@ def sendImagesAsXML(files, sock):
 
         sock.sendall(ET.tostring(request))
 
-        #time.sleep(0.1)
+        time.sleep(0.1)
 
 if __name__ == '__main__':
 
