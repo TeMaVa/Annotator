@@ -20,7 +20,7 @@ import numpy as np
 import base64
 import cv2
 
-from scipy.io import loadmat,savemat
+
 
 import SocketServer
 
@@ -105,7 +105,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
                 next_buffer = next_buffer[4:]
             # self.request is the TCP socket connected to the client
 
-            self.data = self.request.recv(4)
+#            self.data = self.request.recv(4)
 
             else:
                 self.data = self.request.recv(4).strip()
@@ -132,12 +132,12 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             #print "Loopnumber = {0}".format(loopnumber)
              
 
-            for i in range(loopnumber):
-                self.data = self.request.recv(recvalue)
-                self.data = self.data.strip()
-                rdata = rdata + self.data
-                
-    
+#            for i in range(loopnumber):
+#                self.data = self.request.recv(recvalue)
+#                self.data = self.data.strip()
+#                rdata = rdata + self.data
+#                
+#    
 #            while True:
 #                self.data = self.request.recv(recvalue).strip()
 #                if self.data == '':
@@ -145,6 +145,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 #                rdata = rdata + self.data
 
             #for i in range(loopnumber):
+
             while True:
                 self.data = self.request.recv(recvalue).strip()
                 rdata = rdata + self.data
