@@ -35,12 +35,16 @@ Visualizer::Visualizer(QWidget *parent) :
     x << 1.0 << 2.0 << 3.0 << 4.0;
     QVector<double> xtick;
     xtick << 1.0 << 2.0 << 3.0 << 4.0;
+    QVector<QString> labels;
+    labels << "henkilöauto" << "pakettiauto" << "kuorma-auto" << "linja-auto";
     ui->plotBox->xAxis->setLabel("luokka");
     ui->plotBox->yAxis->setLabel("P(luokka)");
     ui->plotBox->xAxis->setRange(0, 5);
     ui->plotBox->xAxis->setAutoTicks(false);
     ui->plotBox->xAxis->setTickVector(xtick);
-    ui->plotBox->yAxis->setRange(0, 1.1);
+    ui->plotBox->xAxis->setAutoTickLabels(false);
+    ui->plotBox->xAxis->setTickVectorLabels(labels);
+    ui->plotBox->yAxis->setRange(0, 1.3);
     ui->plotBox->graph(0)->setLineStyle(QCPGraph::lsImpulse);
 }
 
