@@ -57,7 +57,7 @@ def sendImagesAsXML(files, sock):
 
         sock.sendall(ET.tostring(request))
 
-        time.sleep(0.1)
+        time.sleep(0.2)
 
 if __name__ == '__main__':
 
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     
     # Johannes address 130.230.216.69 
     
-    server_address = ("130.230.177.59", 10000)
-
+    # server_address = ("130.230.177.59", 10000)
+    server_address = ("130.230.216.69", 10000)
 
 
     print >>sys.stderr, 'connecting to %s port %s' % server_address
