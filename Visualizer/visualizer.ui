@@ -40,14 +40,14 @@
    <widget class="QPushButton" name="edelBtn">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>34</x>
       <y>340</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>edellinen</string>
+     <string>edellinen (c)</string>
     </property>
    </widget>
    <widget class="QPushButton" name="seurBtn">
@@ -55,12 +55,12 @@
      <rect>
       <x>980</x>
       <y>340</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>seuraava</string>
+     <string>seuraava (v)</string>
     </property>
    </widget>
   </widget>
