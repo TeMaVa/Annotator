@@ -359,7 +359,7 @@ void MainWindow::ignoreImg()
             path_vec::iterator yeOlde = imgIt;
             imgIt++;
             imgPaths.erase(yeOlde);
-            imgIt--;
+            imgIt -= 2;
             loadNext();
         }
     }

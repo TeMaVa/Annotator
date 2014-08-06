@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1084</width>
-    <height>800</height>
+    <width>1101</width>
+    <height>814</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
    <widget class="QPushButton" name="seuraavaBtn">
     <property name="geometry">
      <rect>
-      <x>850</x>
+      <x>750</x>
       <y>50</y>
       <width>101</width>
       <height>22</height>
@@ -100,7 +100,7 @@
    <widget class="QPushButton" name="nnforgeBtn">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>920</x>
       <y>30</y>
       <width>65</width>
       <height>65</height>
@@ -170,8 +170,8 @@
      <rect>
       <x>220</x>
       <y>100</y>
-      <width>731</width>
-      <height>441</height>
+      <width>631</width>
+      <height>391</height>
      </rect>
     </property>
     <property name="text">
@@ -194,7 +194,7 @@
    <widget class="QPushButton" name="ignoreBtn">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>440</x>
       <y>50</y>
       <width>121</width>
       <height>22</height>
@@ -223,7 +223,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1084</width>
+     <width>1101</width>
      <height>19</height>
     </rect>
    </property>
