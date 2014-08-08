@@ -31,11 +31,11 @@ def sendImagesAsXML(files, sock):
         vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
         vekstring = vek.tostring()
 #        strlist = ["%03d" % val for val in vek]
-#        concat = "".join(strlist)       
+#        concat = "".join(strlist)
         encoded = base64.b64encode(vekstring)
 
         request = ET.Element("request")
-        imagesub = ET.SubElement(request,"image")
+        imagesub = ET.SubElement(request,"image_data")
 
         widthsub = ET.SubElement(imagesub,"width")
         widthsub.text = str(width)
@@ -45,19 +45,22 @@ def sendImagesAsXML(files, sock):
 
         rawdatasub = ET.SubElement(imagesub,"rawdata")
         rawdatasub.text = encoded
-        
+
+        imagenamesub = ET.SubElement(request,"image_name")
+        imagenamesub.text = filename
+
         messagelength = len(ET.tostring(request))
         print messagelength
         sendlength = struct.Struct('<L')
-        
+
         packedlength = sendlength.pack(messagelength)
-    
+
         print "Sending length of message: %i" % messagelength
         sock.sendall(packedlength)
 
         sock.sendall(ET.tostring(request))
 
-        time.sleep(0.2)
+        #time.sleep(0.2)
 
 if __name__ == '__main__':
 
@@ -66,15 +69,16 @@ if __name__ == '__main__':
     f = open(annotFile, "r")
     fl = filter(lambda line: len(line) > 0, [line.split(",")[0] for line in list(f)])
 
+    # TODO: send each image as a new connection, read the response
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the port where the server is listening
 
     #server_address = ('130.230.177.59', 10000)
-    
-    # Johannes address 130.230.216.69 
-    
+
+    # Johannes address 130.230.216.69
+
     # server_address = ("130.230.177.59", 10000)
     server_address = ("130.230.216.69", 10000)
 
@@ -94,7 +98,7 @@ if __name__ == '__main__':
     imagessub.text = str(len(fl))
 
     sock.sendall(ET.tostring(begin))
-   
+
 
     # wait for ok from server, send images, read prediction in separate thread
 
@@ -103,7 +107,7 @@ if __name__ == '__main__':
     sock.close()
 
     # try:
-        
+
          # Send data
 
     #     print "Sending the message"
