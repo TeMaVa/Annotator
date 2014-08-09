@@ -102,7 +102,7 @@ def handle(connection):
         probsub.text = encoded
 
         # simulate network lag
-        time.sleep(np.random.exponential(1.0))
+        time.sleep(np.random.exponential(3.0))
 
         connection.sendall(ET.tostring(response))
         connection.close()
