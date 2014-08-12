@@ -2,6 +2,7 @@ import socket
 import threading
 import struct
 import xml.etree.ElementTree as ET
+import time
 
 import numpy as np
 import base64
@@ -32,7 +33,8 @@ def handle(connection):
     return classification result, close connection"""
 
     # first, read n_images
-    data = connection.recv(1024).strip()
+    data = connection.recv(33).strip()
+    #print "data:", data
     XML = ET.fromstring(data)
     n_images = int(XML[0].text)
 
@@ -93,11 +95,14 @@ def handle(connection):
         encoded = base64.b64encode(vekstring)
 
         response = ET.Element("response")
-        imagesub = ET.SubElement(request,"image_name")
+        imagesub = ET.SubElement(response,"image_name")
         imagesub.text = filename
 
-        probsub = ET.SubElement(request,"prob_vector_b64")
+        probsub = ET.SubElement(response,"prob_vector_b64")
         probsub.text = encoded
+
+        # simulate network lag
+        time.sleep(np.random.exponential(3.0))
 
         connection.sendall(ET.tostring(response))
         connection.close()
@@ -110,6 +115,7 @@ if __name__ == '__main__':
     while True:
         s.listen(1)
         conn, addr = s.accept()
+
         print "Incoming connection from", addr
         t = threading.Thread(target=handle, args=(conn,))
         # threads responsibility is to handle the connection and close it
