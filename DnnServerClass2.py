@@ -159,16 +159,16 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
             next_buffer = rdata[len(rdata)-(received-unpacked_length):]
 
-            print "next_buffer = {0}".format(next_buffer)
+#            print "next_buffer = {0}".format(next_buffer)
 
             rdata = rdata[0:len(rdata)-(received-unpacked_length)]
 
     
             print "Length of received data: {0}".format(len(rdata))
 
-            print "first 50 chars of received data:\n{0}".format(rdata[0:50])
+#            print "first 50 chars of received data:\n{0}".format(rdata[0:50])
 
-            print "last 50 chars of received data:\n{0}".format(rdata[-50:])
+#            print "last 50 chars of received data:\n{0}".format(rdata[-50:])
             
             if (unpacked_length != len(rdata)):
                 print "Package incomplete"

@@ -47,17 +47,17 @@ def sendImagesAsXML(files, sock):
         rawdatasub.text = encoded
         
         messagelength = len(ET.tostring(request))
-        print messagelength
+
         sendlength = struct.Struct('<L')
         
         packedlength = sendlength.pack(messagelength)
     
         print "Sending length of message: %i" % messagelength
         sock.sendall(packedlength)
-
+        print "Sending XML package"
         sock.sendall(ET.tostring(request))
 
-        time.sleep(0.2)
+        time.sleep(2)
 
 if __name__ == '__main__':
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     # Johannes address 130.230.216.69 
     
     # server_address = ("130.230.177.59", 10000)
-    server_address = ("130.230.216.69", 10000)
+    server_address = ("localhost", 10000)
 
 
     print >>sys.stderr, 'connecting to %s port %s' % server_address
