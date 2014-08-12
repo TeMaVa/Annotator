@@ -9,19 +9,20 @@ Created on Mon Jul 28 13:19:24 2014
 import socket
 import sys
 import struct
+import threading
 import xml.etree.ElementTree as ET
 import numpy as np
 import cv2
 import base64
-import time
 
-def sendImagesAsXML(files, sock):
+def sendImageAsXML(filename, socket):
     """
-    Reads each image file in a list and sends contents over network
-    files : list of file names
-    socket : where to send data
-    returns : nothing
+    Read image file and send contents over network
+    filename : filename of image
+    socket   : where to send data
+    returns  : nothing
     """
+
     for filename in files:
         img = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img == None:
@@ -31,7 +32,7 @@ def sendImagesAsXML(files, sock):
         vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
         vekstring = vek.tostring()
 #        strlist = ["%03d" % val for val in vek]
-#        concat = "".join(strlist)       
+#        concat = "".join(strlist)
         encoded = base64.b64encode(vekstring)
 
         request = ET.Element("request")
@@ -59,17 +60,20 @@ def sendImagesAsXML(files, sock):
 
         time.sleep(2)
 
-if __name__ == '__main__':
+    img = cv2.imread(filename, cv2.IMREAD_COLOR)
+    if img == None:
+        raise IOError("could not read image "+filename)
 
-    # [(filename, class_label)]
-    annotFile = sys.argv[1]
-    f = open(annotFile, "r")
-    fl = filter(lambda line: len(line) > 0, [line.split(",")[0] for line in list(f)])
+    height = img.shape[0]
+    width = img.shape[1]
+    vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
+    vekstring = vek.tostring()
+    encoded = base64.b64encode(vekstring)
 
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Connect the socket to the port where the server is listening
+    request = ET.Element("request")
+    imagesub = ET.SubElement(request,"image_data")
+
 
     #server_address = ('130.230.177.59', 10000)
     
@@ -78,40 +82,77 @@ if __name__ == '__main__':
     # server_address = ("130.230.177.59", 10000)
     server_address = ("localhost", 10000)
 
+    widthsub = ET.SubElement(imagesub,"width")
+    widthsub.text = str(width)
 
-    print >>sys.stderr, 'connecting to %s port %s' % server_address
-    sock.connect(server_address)
+    heightsub = ET.SubElement(imagesub,"height")
+    heightsub.text = str(height)
 
-    print server_address
 
-    # send number of images to classify
-    # <begin>
-    #   <images>200</images>
-    # </begin>
+    rawdatasub = ET.SubElement(imagesub,"rawdata")
+    rawdatasub.text = encoded
 
-    begin= ET.Element("begin")
-    imagessub = ET.SubElement(begin,"images")
-    imagessub.text = str(len(fl))
+    imagenamesub = ET.SubElement(request,"image_name")
+    imagenamesub.text = filename
 
-    sock.sendall(ET.tostring(begin))
-   
+    messagelength = len(ET.tostring(request))
+    #print messagelength
+    sendlength = struct.Struct('<L')
 
-    # wait for ok from server, send images, read prediction in separate thread
+    packedlength = sendlength.pack(messagelength)
 
-    sendImagesAsXML(fl, sock)
+    #print "Sending length of message: %i" % messagelength
+    sock.sendall(packedlength)
+
+    sock.sendall(ET.tostring(request))
+
+def handlereply(sock):
+    """this function waits for the reply from server
+    and then closes the connection."""
+    # wait for reply
+    data = sock.recv(1024).strip()
+    #print "received reply: {0}".format(data)
+
+    XML = ET.fromstring(data)
+
+    imagenameElem = XML[0]
+    probElem = XML[1]
+    filename = imagenameElem.text
+    rawdata = probElem.text
+    decoded = base64.b64decode(rawdata)
+    vek = np.fromstring(decoded)
+    print "received", filename
+    print "received vector:", vek
 
     sock.close()
 
-    # try:
-        
-         # Send data
+if __name__ == '__main__':
 
-    #     print "Sending the message"
-    #     sock.sendall(message)
-    #     print "Message sent"
+    server_address = ("localhost", 10000)
+    #server_address = ('130.230.177.59', 10000)
 
+    # [(filename, class_label)]
+    annotFile = sys.argv[1]
+    f = open(annotFile, "r")
+    fl = filter(lambda line: len(line) > 0, [line.split(",")[0] for line in list(f)])
 
+    # send each image as a new connection, read the response
+    for filename in fl:
+        # Create a TCP/IP socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(server_address)
 
-    # finally:
-    #     print >>sys.stderr, 'Closing socket'
-    #     sock.close()
+        # send number of images to classify
+        begin= ET.Element("begin")
+        imagessub = ET.SubElement(begin,"images")
+        imagessub.text = str(1)
+
+        #print "sending n_images {0} of length {1}".format(ET.tostring(begin), len(ET.tostring(begin)))
+        sock.sendall(ET.tostring(begin))
+
+        print "sending", filename
+        # send the image
+        sendImageAsXML(filename, sock)
+
+        t = threading.Thread(target=handlereply, args=(sock,))
+        t.start()

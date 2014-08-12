@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1080</width>
-    <height>995</height>
+    <width>930</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QCustomPlot" name="plotBox" native="true">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>690</y>
+      <x>220</x>
+      <y>520</y>
       <width>561</width>
       <height>211</height>
      </rect>
@@ -29,8 +29,8 @@
      <rect>
       <x>180</x>
       <y>70</y>
-      <width>768</width>
-      <height>574</height>
+      <width>631</width>
+      <height>391</height>
      </rect>
     </property>
     <property name="text">
@@ -40,27 +40,27 @@
    <widget class="QPushButton" name="edelBtn">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>34</x>
       <y>340</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>edellinen</string>
+     <string>edellinen (c)</string>
     </property>
    </widget>
    <widget class="QPushButton" name="seurBtn">
     <property name="geometry">
      <rect>
-      <x>980</x>
+      <x>820</x>
       <y>340</y>
-      <width>75</width>
+      <width>81</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>seuraava</string>
+     <string>seuraava (v)</string>
     </property>
    </widget>
   </widget>
@@ -69,7 +69,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1080</width>
+     <width>930</width>
      <height>19</height>
     </rect>
    </property>
