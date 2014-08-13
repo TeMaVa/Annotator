@@ -6,6 +6,8 @@
 #include <vector>
 #include <fstream>
 
+#include <boost/filesystem.hpp>
+
 #include <QMainWindow>
 
 namespace Ui {
@@ -17,6 +19,7 @@ class Visualizer : public QMainWindow
     Q_OBJECT
 
     typedef std::map<std::string, QVector<double> > file2vek_t;
+    typedef std::vector<boost::filesystem::path> path_vek_t;
 public:
     explicit Visualizer(QWidget *parent = 0);
     ~Visualizer();
@@ -27,20 +30,25 @@ private:
 	void createMenus();
 	void createActions();
     void readProb(std::ifstream& inputS);
+    void writeAnnotation(boost::filesystem::ofstream& outputStream);
 
 	QMenu *fileMenu;
 	QMenu *helpMenu;
 	QAction *openAct;
+    QAction *openClient;
 	QAction *exitAct;
 	QAction *aboutQtAct;
     file2vek_t file2vek;
     std::vector<std::string>::iterator fileit;
     std::vector<std::string> paths;
+    boost::filesystem::path annotationPath;
+    path_vek_t imgPaths;
     QVector<double> x;
 private slots:
 	void seurBtnClick();
 	void edelBtnClick();
     void open();
+    void classify();
 };
 
 #endif // VISUALIZER_H

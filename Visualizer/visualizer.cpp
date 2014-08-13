@@ -1,5 +1,6 @@
 #include "visualizer.h"
 #include "ui_visualizer.h"
+#include "dnnclient.h"
 
 #include <fstream>
 #include <algorithm>
@@ -57,6 +58,7 @@ void Visualizer::createMenus()
 {
 	fileMenu = ui->menuBar->addMenu(tr("&Tiedosto"));
 	fileMenu->addAction(openAct);
+    fileMenu->addAction(openClient);
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAct);
 
@@ -67,10 +69,14 @@ void Visualizer::createMenus()
 void Visualizer::createActions()
 {
 
-	openAct = new QAction(tr("&Avaa..."), this);
+    openAct = new QAction(QIcon(":../images/open.png"), tr("&Avaa..."), this);
 	openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Avaa todennäköisyystiedosto"));
 	connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
+
+    openClient = new QAction(tr("Luokita.."), this);
+    openClient->setStatusTip(tr("Luokita kansion kuvat"));
+    connect(openClient, SIGNAL(triggered()), this, SLOT(classify()));
 
 	exitAct = new QAction(tr("&Lopeta"), this);
 	exitAct->setShortcuts(QKeySequence::Quit);
@@ -89,6 +95,51 @@ void Visualizer::connectAll()
 {
 	connect(ui->seurBtn, SIGNAL(clicked()), this, SLOT(seurBtnClick()));
 	connect(ui->edelBtn, SIGNAL(clicked()), this, SLOT(edelBtnClick()));
+}
+
+void Visualizer::classify()
+{
+    QString pathName = QFileDialog::getExistingDirectory(this, tr("Avaa kuvakansio"));
+    if (!pathName.isEmpty())
+    {
+        file2vek.clear();
+        annotationPath = boost::filesystem::path(pathName.toStdString()) / "annotationClient.csv";
+        boost::filesystem::path imgPath(pathName.toStdString());
+        boost::filesystem::ofstream outputStream;
+        outputStream.open(annotationPath, std::ios_base::out | std::ios_base::trunc);
+        imgPaths.clear();
+        boost::regex expression(".*.(jpg|png|bmp|jpeg)");
+        boost::cmatch what;
+        path_vek_t paths;
+        std::copy(boost::filesystem::directory_iterator(imgPath), boost::filesystem::directory_iterator(), std::back_inserter(paths));
+        std::sort(paths.begin(), paths.end());
+        // Filter non-images out
+        foreach_(boost::filesystem::path& elem, paths)
+        {
+            std::string filename = elem.string();
+            if (boost::regex_search(filename.c_str(), what, expression))
+            {
+                imgPaths.push_back(elem);
+            }
+        }
+
+        writeAnnotation(outputStream);
+
+        char* cmd = ("python2 ../SendData.py " + annotationPath.string()).c_str();
+        std::system(cmd);
+
+        // read results to file2vek
+    }
+}
+
+void Visualizer::writeAnnotation(boost::filesystem::ofstream& outputStream)
+{
+    path_vek_t::iterator it;
+    for (it = imgPaths.begin(); it != imgPaths.end(); it++)
+    {
+        outputStream << it->string() << "," << 0 << std::endl;
+    }
+    outputStream.close();
 }
 
 void Visualizer::open()
@@ -149,6 +200,7 @@ void Visualizer::seurBtnClick()
     ui->kuvaBox->setPixmap(QPixmap::fromImage(image));
     ui->plotBox->graph(0)->setData(x, file2vek[*fileit]);
     ui->plotBox->replot();
+    ui->imgNameBox->setText(filename);
 }
 
 void Visualizer::edelBtnClick()
@@ -168,4 +220,5 @@ void Visualizer::edelBtnClick()
     ui->kuvaBox->setPixmap(QPixmap::fromImage(image));
     ui->plotBox->graph(0)->setData(x, file2vek[*fileit]);
     ui->plotBox->replot();
+    ui->imgNameBox->setText(filename);
 }
