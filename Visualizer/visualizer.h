@@ -7,6 +7,7 @@
 #include <fstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #include <QMainWindow>
 

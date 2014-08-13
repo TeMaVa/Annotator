@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Visualizer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/images/justnn.gif</normaloff>:/images/justnn.gif</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QCustomPlot" name="plotBox" native="true">
     <property name="geometry">

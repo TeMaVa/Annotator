@@ -2,6 +2,12 @@
 #include "ui_visualizer.h"
 #include "dnnclient.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+
 #include <fstream>
 #include <algorithm>
 
@@ -69,7 +75,7 @@ void Visualizer::createMenus()
 void Visualizer::createActions()
 {
 
-    openAct = new QAction(QIcon(":../images/open.png"), tr("&Avaa..."), this);
+    openAct = new QAction(QIcon(":/images/open.png"), tr("&Avaa..."), this);
 	openAct->setShortcuts(QKeySequence::Open);
     openAct->setStatusTip(tr("Avaa todennäköisyystiedosto"));
 	connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
@@ -125,10 +131,40 @@ void Visualizer::classify()
 
         writeAnnotation(outputStream);
 
-        char* cmd = ("python2 ../SendData.py " + annotationPath.string()).c_str();
+        // create named pipe
+        mknod("/tmp/DNNFIFO", S_IFIFO|0666, 0);
+
+        std::string receivedFile = "classification.csv";
+        boost::filesystem::path absolutePath = boost::filesystem::absolute(boost::filesystem::path(receivedFile));
+        const char* cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
+
+        //QMessageBox fyiBox;
+        //fyiBox.setIcon(QMessageBox::Information);
+        //fyiBox.setText(tr("luokitellaan..."));
+        //QMessageBox fyiBox = QMessageBox(QMessageBox::Information, tr("Odota"), tr("luokitellaan..."));
+        //fyiBox.setWindowModality(Qt::ApplicationModal);
+        //fyiBox.show();
+        // todo: do asyncronously
         std::system(cmd);
+        //fyiBox.close();
 
         // read results to file2vek
+        try
+        {
+            boost::filesystem::ifstream inputStream(absolutePath, std::ios::in) ;
+            if (!inputStream) throw std::ios::failure("Virhe avatessa tiedostoa.");
+            //std::cout << "opening " << absolutePath.string() << std::endl;
+            readProb(inputStream);
+            inputStream.close();
+            seurBtnClick();
+        }
+        catch (const std::exception e) // file does not exist
+        {
+            QString virhestr = tr("Poikkeus: ") + QString(e.what());
+            QMessageBox::critical(this, tr("VIRHE"), tr("Tiedostoa ") + QString(receivedFile.c_str()) + tr(" ei voitu lukea. ") + virhestr);
+            qApp->exit(1);
+            return;
+        }
     }
 }
 
@@ -152,6 +188,7 @@ void Visualizer::open()
         inputS.open(fileName.toStdString().c_str());
         readProb(inputS);
         inputS.close();
+        seurBtnClick();
     }
 }
 
@@ -180,7 +217,6 @@ void Visualizer::readProb(std::ifstream& inputS)
     }
     std::sort(paths.begin(), paths.end());
     fileit = paths.begin()-1;
-    seurBtnClick();
 }
 
 void Visualizer::seurBtnClick()
