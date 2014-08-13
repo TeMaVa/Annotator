@@ -15,6 +15,8 @@ import numpy as np
 import cv2
 import base64
 
+lock = threading.Lock()
+
 def sendImageAsXML(filename, socket):
     """
     Read image file and send contents over network
@@ -60,8 +62,9 @@ def sendImageAsXML(filename, socket):
 
     sock.sendall(ET.tostring(request))
 
-def handlereply(sock):
-    """this function waits for the reply from server
+def handlereply(sock, outputH):
+    """this function waits for the reply from the server,
+    writes result to output file
     and then closes the connection."""
     # wait for reply
     data = sock.recv(1024).strip()
@@ -75,8 +78,11 @@ def handlereply(sock):
     rawdata = probElem.text
     decoded = base64.b64decode(rawdata)
     vek = np.fromstring(decoded)
+    veks = ",".join([str(elem) for elem in vek])
     print "received", filename
     print "received vector:", vek
+    with lock:
+        outputH.write(filename+","+veks+"\n")
 
     sock.close()
 
@@ -85,10 +91,13 @@ if __name__ == '__main__':
     server_address = ("localhost", 10000)
     #server_address = ('130.230.177.59', 10000)
 
+
     # [(filename, class_label)]
     annotFile = sys.argv[1]
     f = open(annotFile, "r")
     fl = filter(lambda line: len(line) > 0, [line.split(",")[0] for line in list(f)])
+
+    fo = open(sys.argv[2], "w");
 
     # send each image as a new connection, read the response
     for filename in fl:
@@ -108,5 +117,5 @@ if __name__ == '__main__':
         # send the image
         sendImageAsXML(filename, sock)
 
-        t = threading.Thread(target=handlereply, args=(sock,))
+        t = threading.Thread(target=handlereply, args=(sock,fo))
         t.start()

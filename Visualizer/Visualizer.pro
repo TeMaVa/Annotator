@@ -16,9 +16,17 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         visualizer.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    dnnclient.cpp
 
 HEADERS  += visualizer.h \
-    qcustomplot.h
+    qcustomplot.h \
+    dnnclient.h
 
-FORMS    += visualizer.ui
+FORMS    += visualizer.ui \
+    dnnclient.ui
+
+RESOURCES += \
+    res.qrc
+
+OTHER_FILES +=

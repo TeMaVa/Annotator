@@ -40,14 +40,18 @@
    <widget class="QPushButton" name="edelBtn">
     <property name="geometry">
      <rect>
-      <x>34</x>
+      <x>24</x>
       <y>340</y>
-      <width>81</width>
+      <width>101</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>edellinen (c)</string>
+    </property>
+    <property name="icon">
+     <iconset resource="res.qrc">
+      <normaloff>:/images/arrow-left.png</normaloff>:/images/arrow-left.png</iconset>
     </property>
    </widget>
    <widget class="QPushButton" name="seurBtn">
@@ -55,12 +59,29 @@
      <rect>
       <x>820</x>
       <y>340</y>
-      <width>81</width>
+      <width>101</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
      <string>seuraava (v)</string>
+    </property>
+    <property name="icon">
+     <iconset resource="res.qrc">
+      <normaloff>:/images/arrow-right.png</normaloff>:/images/arrow-right.png</iconset>
+    </property>
+   </widget>
+   <widget class="QLabel" name="imgNameBox">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>480</y>
+      <width>431</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
   </widget>
@@ -93,6 +114,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>
