@@ -1,6 +1,7 @@
 #include "visualizer.h"
 #include "ui_visualizer.h"
 #include "dnnclient.h"
+#include "ui_dnnclient.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -17,11 +18,11 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+#include <boost/thread.hpp>
+#include <boost/chrono.hpp>
 #define foreach_ BOOST_FOREACH
 
-using namespace boost::lambda;
+const char* fifofile = "/tmp/DNNFIFO";
 
 double stf(const std::string& arg)
 {
@@ -53,11 +54,13 @@ Visualizer::Visualizer(QWidget *parent) :
     ui->plotBox->xAxis->setTickVectorLabels(labels);
     ui->plotBox->yAxis->setRange(0, 1.3);
     ui->plotBox->graph(0)->setLineStyle(QCPGraph::lsImpulse);
+    clientWindow = new DnnClient;
 }
 
 Visualizer::~Visualizer()
 {
     delete ui;
+    delete clientWindow;
 }
 
 void Visualizer::createMenus()
@@ -105,6 +108,7 @@ void Visualizer::connectAll()
 
 void Visualizer::classify()
 {
+    bool debug = true;
     QString pathName = QFileDialog::getExistingDirectory(this, tr("Avaa kuvakansio"));
     if (!pathName.isEmpty())
     {
@@ -132,11 +136,15 @@ void Visualizer::classify()
         writeAnnotation(outputStream);
 
         // create named pipe
-        mknod("/tmp/DNNFIFO", S_IFIFO|0666, 0);
+        mknod(fifofile, S_IFIFO|0666, 0);
 
         std::string receivedFile = "classification.csv";
         boost::filesystem::path absolutePath = boost::filesystem::absolute(boost::filesystem::path(receivedFile));
-        const char* cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
+        const char* cmd;
+        if (debug)
+            cmd = ("python2 ../SendData.py "  "mylongest4annotation.csv" " " + receivedFile).c_str();
+        else
+            cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
 
         //QMessageBox fyiBox;
         //fyiBox.setIcon(QMessageBox::Information);
@@ -144,9 +152,42 @@ void Visualizer::classify()
         //QMessageBox fyiBox = QMessageBox(QMessageBox::Information, tr("Odota"), tr("luokitellaan..."));
         //fyiBox.setWindowModality(Qt::ApplicationModal);
         //fyiBox.show();
-        // todo: do asyncronously
-        std::system(cmd);
+        boost::thread python_thread(std::system, cmd);
+        clientWindow->show();
+        //python_thread.start_thread();
         //fyiBox.close();
+        std::ifstream fifoin(fifofile, std::ios::in);
+        std::string line;
+        boost::regex numExpression("([0-9]+)\\/([0-9]+) classified");
+        while (true)
+        {
+            std::getline(fifoin, line);
+            if (line.size() > 0)
+            {
+                //std::cout << "got line " << line << std::endl;
+                boost::regex_search(line.c_str(), what, numExpression);
+                //std::cout << "num1 = " << what[1].str() << " num2 = " << what[2].str() << std::endl;
+                unsigned num1 = boost::lexical_cast<unsigned>(what[1].str());
+                unsigned num2 = boost::lexical_cast<unsigned>(what[2].str());
+                clientWindow->ui->image_n->display((int)num1);
+                clientWindow->ui->N_images->display((int)num2);
+                clientWindow->ui->progressBar->setValue(num1/num2);
+                clientWindow->repaint();
+                if (num1 == num2)
+                    break;
+                std::cout << line << std::endl;
+            }
+            else
+            {
+                boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+            }
+
+        }
+
+        python_thread.join();
+        clientWindow->close();
+        // delete fifo
+        boost::filesystem::remove(boost::filesystem::path(fifofile));
 
         // read results to file2vek
         try

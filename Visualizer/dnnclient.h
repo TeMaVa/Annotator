@@ -15,8 +15,9 @@ public:
     explicit DnnClient(QWidget *parent = 0);
     ~DnnClient();
 
-private:
     Ui::DnnClient *ui;
+
+private:
 
     void createActions();
     void createMenus();

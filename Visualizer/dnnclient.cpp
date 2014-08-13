@@ -9,8 +9,6 @@ DnnClient::DnnClient(QWidget *parent) :
 
     createActions();
     createMenus();
-    ui->edelBtn->setShortcut(tr("c"));
-    ui->seurBtn->setShortcut(tr("v"));
 }
 
 DnnClient::~DnnClient()
