@@ -7,8 +7,10 @@
 #include <fstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #include <QMainWindow>
+#include "dnnclient.h"
 
 namespace Ui {
 class Visualizer;
@@ -32,6 +34,7 @@ private:
     void readProb(std::ifstream& inputS);
     void writeAnnotation(boost::filesystem::ofstream& outputStream);
 
+    DnnClient *clientWindow;
 	QMenu *fileMenu;
 	QMenu *helpMenu;
 	QAction *openAct;

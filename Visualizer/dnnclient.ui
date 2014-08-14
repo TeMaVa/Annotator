@@ -6,94 +6,68 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1059</width>
-    <height>776</height>
+    <width>466</width>
+    <height>239</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Please, be patient</string>
   </property>
-  <widget class="QLabel" name="imgBox">
+  <widget class="QProgressBar" name="progressBar">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>120</y>
-     <width>631</width>
-     <height>391</height>
+     <x>90</x>
+     <y>150</y>
+     <width>291</width>
+     <height>23</height>
     </rect>
    </property>
-   <property name="text">
-    <string/>
+   <property name="value">
+    <number>0</number>
    </property>
   </widget>
-  <widget class="QCustomPlot" name="plotBox" native="true">
+  <widget class="QLCDNumber" name="image_n">
    <property name="geometry">
     <rect>
-     <x>240</x>
-     <y>540</y>
-     <width>431</width>
-     <height>211</height>
+     <x>140</x>
+     <y>60</y>
+     <width>64</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="edelBtn">
-   <property name="geometry">
-    <rect>
-     <x>29</x>
-     <y>300</y>
-     <width>91</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>edellinen (c)</string>
-   </property>
-   <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/images/arrow-left.png</normaloff>:/images/arrow-left.png</iconset>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="seurBtn">
-   <property name="geometry">
-    <rect>
-     <x>810</x>
-     <y>300</y>
-     <width>101</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>seuraava (v)</string>
-   </property>
-   <property name="icon">
-    <iconset resource="res.qrc">
-     <normaloff>:/images/arrow-right.png</normaloff>:/images/arrow-right.png</iconset>
-   </property>
-  </widget>
-  <widget class="QLabel" name="imTitle">
+  <widget class="QLCDNumber" name="N_images">
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>70</y>
-     <width>421</width>
-     <height>21</height>
+     <y>60</y>
+     <width>64</width>
+     <height>23</height>
     </rect>
    </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>60</y>
+     <width>21</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>padmaa</family>
+     <pointsize>18</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="text">
-    <string>TextLabel</string>
+    <string>/</string>
    </property>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
- <resources>
-  <include location="res.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

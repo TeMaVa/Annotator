@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Visualizer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/images/justnn.gif</normaloff>:/images/justnn.gif</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QCustomPlot" name="plotBox" native="true">
     <property name="geometry">
@@ -40,7 +44,7 @@
    <widget class="QPushButton" name="edelBtn">
     <property name="geometry">
      <rect>
-      <x>24</x>
+      <x>60</x>
       <y>340</y>
       <width>101</width>
       <height>23</height>
@@ -74,14 +78,65 @@
    <widget class="QLabel" name="imgNameBox">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>180</x>
       <y>480</y>
-      <width>431</width>
+      <width>621</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>20</y>
+      <width>241</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="image_n">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>20</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="N_images">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>20</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>650</x>
+      <y>20</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>/</string>
     </property>
    </widget>
   </widget>

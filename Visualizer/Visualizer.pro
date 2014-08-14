@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QMAKE_LFLAGS += -lboost_regex -lboost_filesystem -lboost_system
+QMAKE_LFLAGS += -lboost_regex -lboost_filesystem -lboost_system -lboost_thread
 
 QT       += core gui
 

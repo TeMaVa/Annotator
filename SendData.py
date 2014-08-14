@@ -108,7 +108,7 @@ def sendImageAsXML(filename, socket):
 
     sock.sendall(ET.tostring(request))
 
-def handlereply(sock, outputH):
+def handlereply(sock, outputH, pipe, N_images, image_n):
     """this function waits for the reply from the server,
     writes result to output file
     and then closes the connection."""
@@ -125,10 +125,12 @@ def handlereply(sock, outputH):
     decoded = base64.b64decode(rawdata)
     vek = np.fromstring(decoded)
     veks = ",".join([str(elem) for elem in vek])
-    print "received", filename
-    print "received vector:", vek
+    #print "received vector:", vek
     with lock:
         outputH.write(filename+","+veks+"\n")
+        pipe.write("{0}/{1} classified\n".format(image_n, N_images))
+        pipe.flush()
+
 
     sock.close()
 
@@ -142,11 +144,17 @@ if __name__ == '__main__':
     annotFile = sys.argv[1]
     f = open(annotFile, "r")
     fl = filter(lambda line: len(line) > 0, [line.split(",")[0] for line in list(f)])
+    N_images = len(fl)
+    image_n = 0
 
     fo = open(sys.argv[2], "w");
 
+    fifoname = "/tmp/DNNFIFO"
+    pipe = open(fifoname, "w")
+
     # send each image as a new connection, read the response
     for filename in fl:
+        image_n = image_n + 1
         # Create a TCP/IP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(server_address)
@@ -159,9 +167,9 @@ if __name__ == '__main__':
         #print "sending n_images {0} of length {1}".format(ET.tostring(begin), len(ET.tostring(begin)))
         sock.sendall(ET.tostring(begin))
 
-        print "sending", filename
+        #print "sending", filename
         # send the image
         sendImageAsXML(filename, sock)
 
-        t = threading.Thread(target=handlereply, args=(sock,fo))
+        t = threading.Thread(target=handlereply, args=(sock,fo,pipe,N_images,image_n))
         t.start()
