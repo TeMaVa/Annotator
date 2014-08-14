@@ -3,9 +3,19 @@ import threading
 import struct
 import xml.etree.ElementTree as ET
 import time
+import sys
 
 import numpy as np
 import base64
+
+from NnforgeWrapper import Nnforge
+
+class DummyClassifier(object):
+    def __init__(self):
+        pass
+
+    def predict_proba(self, X):
+        return np.random.random((X.shape[0], 4))
 
 def handleimage(rawdata):
     """convert raw image data to numpy array."""
@@ -23,12 +33,13 @@ def handleimage(rawdata):
     mat = np.reshape(decoded, (height, width, 3))
     return mat, filename
 
-def predict_proba(image):
-    # TODO: call the classifier here
-    return np.random.random((1,4))
+# returns (n_images, 4) matrix
+def predict_proba(imagemat, clf):
+    # call the classifier here
+    return clf.predict_proba(imagemat)
 
 
-def handle(connection):
+def handle(connection, clf):
     """read raw image data, convert it to numpy array, send to classifier,
     return classification result, close connection"""
 
@@ -40,6 +51,8 @@ def handle(connection):
 
     print "Receiving {0} images.".format(n_images)
 
+    X = []
+    filenames = []
     # next_buffer holds the left-over data
     next_buffer = ""
 
@@ -89,14 +102,21 @@ def handle(connection):
             return
 
         mat, filename = handleimage(rdata)
-        p = predict_proba(mat)
+        mat = np.expand_dims(mat, axis=0)
+        X.append(mat)
+        filenames.append(filename)
 
-        vekstring = p.tostring()
+
+    imagemat = np.vstack(X)
+    p = predict_proba(imagemat, clf)
+
+    for i in range(n_images):
+        vekstring = p[i].tostring()
         encoded = base64.b64encode(vekstring)
 
         response = ET.Element("response")
         imagesub = ET.SubElement(response,"image_name")
-        imagesub.text = filename
+        imagesub.text = filenames[i]
 
         probsub = ET.SubElement(response,"prob_vector_b64")
         probsub.text = encoded
@@ -105,19 +125,27 @@ def handle(connection):
         #time.sleep(np.random.exponential(3.0))
 
         connection.sendall(ET.tostring(response))
-        connection.close()
+
+    connection.close()
 
 if __name__ == '__main__':
+    assert sys.argv[1] == "pylearn" or sys.argv[1] == "nnforge"
     HOST = ""
     PORT = 10000
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST,PORT))
+    clf = []
+    clfLock = threading.Lock()
+    if sys.argv[1] == "nnforge":
+        clf = Nnforge(lock=clfLock)
+    else:
+        clf = DummyClassifier()
     while True:
         s.listen(1)
         conn, addr = s.accept()
 
         print "Incoming connection from", addr
-        t = threading.Thread(target=handle, args=(conn,))
+        t = threading.Thread(target=handle, args=(conn,clf))
         # threads responsibility is to handle the connection and close it
         t.start()
 

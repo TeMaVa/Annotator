@@ -66,6 +66,7 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
     """this function waits for the reply from the server,
     writes result to output file
     and then closes the connection."""
+    # TODO: possibility of receiving many predictions at once
     # wait for reply
     data = sock.recv(1024).strip()
     #print "received reply: {0}".format(data)
