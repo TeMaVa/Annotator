@@ -108,7 +108,7 @@ void Visualizer::connectAll()
 
 void Visualizer::classify()
 {
-    bool debug = true;
+    bool debug = false;
     QString pathName = QFileDialog::getExistingDirectory(this, tr("Avaa kuvakansio"));
     if (!pathName.isEmpty())
     {
@@ -153,7 +153,7 @@ void Visualizer::classify()
         //fyiBox.setWindowModality(Qt::ApplicationModal);
         //fyiBox.show();
         boost::thread python_thread(std::system, cmd);
-        clientWindow->show();
+        //clientWindow->show();
         //python_thread.start_thread();
         //fyiBox.close();
         std::ifstream fifoin(fifofile, std::ios::in);
@@ -169,23 +169,24 @@ void Visualizer::classify()
                 //std::cout << "num1 = " << what[1].str() << " num2 = " << what[2].str() << std::endl;
                 unsigned num1 = boost::lexical_cast<unsigned>(what[1].str());
                 unsigned num2 = boost::lexical_cast<unsigned>(what[2].str());
-                clientWindow->ui->image_n->display((int)num1);
-                clientWindow->ui->N_images->display((int)num2);
-                clientWindow->ui->progressBar->setValue(num1/num2);
-                clientWindow->repaint();
+                ui->image_n->display((int)num1);
+                ui->N_images->display((int)num2);
+                ui->progressBar->setValue((unsigned)((float)num1/(float)num2*100.0F));
+                this->repaint();
                 if (num1 == num2)
                     break;
                 std::cout << line << std::endl;
             }
             else
             {
+                this->repaint();
                 boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
             }
 
         }
 
         python_thread.join();
-        clientWindow->close();
+        //clientWindow->close();
         // delete fifo
         boost::filesystem::remove(boost::filesystem::path(fifofile));
 

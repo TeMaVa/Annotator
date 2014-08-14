@@ -83,6 +83,7 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
     with lock:
         outputH.write(filename+","+veks+"\n")
         pipe.write("{0}/{1} classified\n".format(image_n, N_images))
+        pipe.flush()
 
 
     sock.close()
