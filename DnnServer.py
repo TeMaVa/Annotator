@@ -33,11 +33,6 @@ def handleimage(rawdata):
     mat = np.reshape(decoded, (height, width, 3))
     return mat, filename
 
-# returns (n_images, 4) matrix
-def predict_proba(imagemat, clf):
-    # call the classifier here
-    return clf.predict_proba(imagemat)
-
 
 def handle(connection, clf):
     """read raw image data, convert it to numpy array, send to classifier,
@@ -108,7 +103,8 @@ def handle(connection, clf):
 
 
     imagemat = np.vstack(X)
-    p = predict_proba(imagemat, clf)
+    # returns (n_images, 4) matrix
+    p = clf.predict_proba(imagemat)
 
     for i in range(n_images):
         vekstring = p[i].tostring()
