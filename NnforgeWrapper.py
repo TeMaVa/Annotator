@@ -69,6 +69,7 @@ class Nnforge(object):
     # returns probabilities
     # X is matrix of images, with dtype=uint8
     def predict_proba(self, X):
+        lines = []
         with self.lock:
             self.__writeImages(X)
             cmd_prep = [self.binary,
@@ -79,7 +80,7 @@ class Nnforge(object):
                         "test"]
             subprocess.call(cmd_prep)
             subprocess.call(cmd_predict)
-        lines = open(self.predictionfile, "r").readlines()
+            lines = open(self.predictionfile, "r").readlines()
         predictions = [",".join(line.split(",")[1:]) for line in lines]
         predVek = [np.fromstring(line, sep=",") for line in predictions]
         predVek = np.vstack(predVek)
@@ -88,6 +89,7 @@ class Nnforge(object):
 
     # returns class labels
     def predict(self, X):
+        lines = []
         with self.lock:
             self.__writeImages(X)
             cmd_prep = [self.binary,
@@ -96,7 +98,7 @@ class Nnforge(object):
                         "test"]
             subprocess.call(cmd_prep)
             subprocess.call(cmd_predict)
-        lines = open(self.classfile, "r").readlines()
+            lines = open(self.classfile, "r").readlines()
         predictions = [",".join(line.split(",")[1:]) for line in lines]
         predVek = [np.fromstring(line, dtype=np.int, sep=",") for line in predictions]
         predVek = np.vstack(predVek)
