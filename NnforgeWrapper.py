@@ -75,6 +75,7 @@ class Nnforge(object):
             cmd_prep = [self.binary,
                    "prepare_testing_data",
                     "--prediction_annotation", os.path.basename(self.annotationfile),
+                    "--testing_folder", "special",
                        ]
             cmd_predict = [self.binary,
                         "test"]
@@ -93,7 +94,10 @@ class Nnforge(object):
         with self.lock:
             self.__writeImages(X)
             cmd_prep = [self.binary,
-                   "prepare_testing_data"]
+                   "prepare_testing_data",
+                    "--prediction_annotation", os.path.basename(self.annotationfile),
+                    "--testing_folder", "special",
+                        ]
             cmd_predict = [self.binary,
                         "test"]
             subprocess.call(cmd_prep)

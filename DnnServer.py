@@ -106,6 +106,16 @@ def handle(connection, clf):
     # returns (n_images, 4) matrix
     p = clf.predict_proba(imagemat)
 
+    # send number of images in reply
+    begin= ET.Element("begin")
+    imagessub = ET.SubElement(begin,"images")
+    imagessub.text = str(n_images)
+
+    print "length of begin reply:", len(ET.tostring(begin))
+
+    connection.sendall(ET.tostring(begin))
+
+
     for i in range(n_images):
         vekstring = p[i].tostring()
         encoded = base64.b64encode(vekstring)
@@ -119,6 +129,13 @@ def handle(connection, clf):
 
         # simulate network lag
         #time.sleep(np.random.exponential(3.0))
+
+        messagelength = len(ET.tostring(response))
+        sendlength = struct.Struct('<L')
+
+        packedlength = sendlength.pack(messagelength)
+
+        connection.sendall(packedlength)
 
         connection.sendall(ET.tostring(response))
 
