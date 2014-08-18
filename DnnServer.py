@@ -39,12 +39,15 @@ def handle(connection, clf):
     return classification result, close connection"""
 
     # first, read n_images
-    data = connection.recv(33).strip()
-    #print "data:", data
+    data = connection.recv(512).strip()
+    print "data:", data
     XML = ET.fromstring(data)
     n_images = int(XML[0].text)
 
     print "Receiving {0} images.".format(n_images)
+
+    reply = 'k'
+    connection.sendall(reply)
 
     X = []
     filenames = []
@@ -55,16 +58,17 @@ def handle(connection, clf):
 
         # first 4 bytes designate message length
         if len(next_buffer) > 0:
+            print "getting message length from buffer"
             data = next_buffer[0:4]
             next_buffer = next_buffer[4:]
 
         else:
             data = connection.recv(4).strip()
 
-
+        #print "message length", bytearray(data)
         # Check if message length has been received correctly
         if len(data) != 4:
-            print "ERROR: Message length not received correctly"
+            print "ERROR: Message length not received correctly (length = {0})".format(len(data))
             connection.close()
             return
 
@@ -114,7 +118,7 @@ def handle(connection, clf):
     print "length of begin reply:", len(ET.tostring(begin))
 
     connection.sendall(ET.tostring(begin))
-
+    connection.recv(1) # wait ack from client
 
     for i in range(n_images):
         vekstring = p[i].tostring()

@@ -59,7 +59,7 @@ def sendImagesAsXML(filenames, socket):
 
         packedlength = sendlength.pack(messagelength)
 
-        #print "Sending length of message: %i" % messagelength
+        print "Length of message length: %i" % len(packedlength)
         sock.sendall(packedlength)
 
         sock.sendall(ET.tostring(request))
@@ -70,12 +70,15 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
     and then closes the connection."""
 
     # receive n_images
-    data = sock.recv(33).strip()
+    data = sock.recv(512).strip()
     print "received data:", data
     XML = ET.fromstring(data)
     n_images = int(XML[0].text)
 
     print "Receiving a reply of {0} images.".format(n_images)
+
+    reply = 'k'
+    sock.sendall(reply)
 
     vektors = []
     filenames = []
@@ -91,7 +94,6 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
 
         else:
             data = sock.recv(4).strip()
-
 
         # Check if message length has been received correctly
         if len(data) != 4:
@@ -167,16 +169,16 @@ if __name__ == '__main__':
     fifoname = "/tmp/DNNFIFO"
     pipe = open(fifoname, "w")
 
-    PACKET_SIZE = 10
-    keyfunc = lambda x: x % (len(fl) - PACKET_SIZE + 1)
+    N_PACKETS = 4
+    keyfunc = lambda x: x % N_PACKETS
     indexList = sorted(range(len(fl)), key=keyfunc)
     indexGroups = []
     for k, g in itertools.groupby(indexList, keyfunc):
         indexGroups.append(list(g))
     filename_arr = np.array(fl)
 
-    # send PACKET_SIZE images as a new connection, read the response
     for group in indexGroups:
+        print "group:", group
         images = filename_arr[group]
         image_n = image_n + len(images)
         # Create a TCP/IP socket
@@ -190,6 +192,8 @@ if __name__ == '__main__':
 
         #print "sending n_images {0} of length {1}".format(ET.tostring(begin), len(ET.tostring(begin)))
         sock.sendall(ET.tostring(begin))
+        sock.recv(1) # number of images received
+
 
         #print "sending", filename
         # send the image
