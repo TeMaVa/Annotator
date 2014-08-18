@@ -40,7 +40,7 @@ def handle(connection, clf):
 
     # first, read n_images
     data = connection.recv(512).strip()
-    print "data:", data
+    #print "header data:", data
     XML = ET.fromstring(data)
     n_images = int(XML[0].text)
 
@@ -58,9 +58,18 @@ def handle(connection, clf):
 
         # first 4 bytes designate message length
         if len(next_buffer) > 0:
-            print "getting message length from buffer"
+            #print "getting message length from buffer"
+            # problem: buffer too short
             data = next_buffer[0:4]
             next_buffer = next_buffer[4:]
+            #print "data = {0}, next_buffer = {1}".format(repr(data), next_buffer[0:20])
+            # if parts of message length got spilled to next packet
+            if len(data) < 4:
+                # for some reason, the '\r' character gets skipped so we need to take that into account
+                rem = connection.recv(4-len(data)-1)
+                #print "remainder = {0}".format(repr(rem))
+                data = data+"\r"+rem
+            #sys.stdout.flush()
 
         else:
             data = connection.recv(4).strip()
@@ -91,9 +100,11 @@ def handle(connection, clf):
                 break
 
         # store left-over data for next image (if any)
-        next_buffer = rdata[len(rdata)-(received-unpacked_length):]
+        next_buffer = rdata[unpacked_length:]
+        #print "stored next_buffer:", repr(next_buffer)
+        #sys.stdout.flush()
 
-        rdata = rdata[0:len(rdata)-(received-unpacked_length)]
+        rdata = rdata[0:unpacked_length]
 
         if (unpacked_length != len(rdata)):
             print "ERROR: Package incomplete"

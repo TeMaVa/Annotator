@@ -59,7 +59,7 @@ def sendImagesAsXML(filenames, socket):
 
         packedlength = sendlength.pack(messagelength)
 
-        print "Length of message length: %i" % len(packedlength)
+        #print "Length of message length: %i" % len(packedlength)
         sock.sendall(packedlength)
 
         sock.sendall(ET.tostring(request))
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     filename_arr = np.array(fl)
 
     for group in indexGroups:
-        print "group:", group
+        #print "group:", group
         images = filename_arr[group]
         image_n = image_n + len(images)
         # Create a TCP/IP socket
