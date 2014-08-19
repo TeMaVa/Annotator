@@ -3,9 +3,19 @@ import threading
 import struct
 import xml.etree.ElementTree as ET
 import time
+import sys
 
 import numpy as np
 import base64
+
+from NnforgeWrapper import Nnforge
+
+class DummyClassifier(object):
+    def __init__(self):
+        pass
+
+    def predict_proba(self, X):
+        return np.random.random((X.shape[0], 4))
 
 def handleimage(rawdata):
     """convert raw image data to numpy array."""
@@ -23,23 +33,24 @@ def handleimage(rawdata):
     mat = np.reshape(decoded, (height, width, 3))
     return mat, filename
 
-def predict_proba(image):
-    # TODO: call the classifier here
-    return np.random.random((1,4))
 
-
-def handle(connection):
+def handle(connection, clf):
     """read raw image data, convert it to numpy array, send to classifier,
     return classification result, close connection"""
 
     # first, read n_images
-    data = connection.recv(33).strip()
-    #print "data:", data
+    data = connection.recv(512).strip()
+    #print "header data:", data
     XML = ET.fromstring(data)
     n_images = int(XML[0].text)
 
     print "Receiving {0} images.".format(n_images)
 
+    reply = 'k'
+    connection.sendall(reply)
+
+    X = []
+    filenames = []
     # next_buffer holds the left-over data
     next_buffer = ""
 
@@ -47,16 +58,26 @@ def handle(connection):
 
         # first 4 bytes designate message length
         if len(next_buffer) > 0:
+            #print "getting message length from buffer"
+            # problem: buffer too short
             data = next_buffer[0:4]
             next_buffer = next_buffer[4:]
+            #print "data = {0}, next_buffer = {1}".format(repr(data), next_buffer[0:20])
+            # if parts of message length got spilled to next packet
+            if len(data) < 4:
+                # for some reason, the '\r' character gets skipped so we need to take that into account
+                rem = connection.recv(4-len(data)-1)
+                #print "remainder = {0}".format(repr(rem))
+                data = data+"\r"+rem
+            #sys.stdout.flush()
 
         else:
             data = connection.recv(4).strip()
 
-
+        #print "message length", bytearray(data)
         # Check if message length has been received correctly
         if len(data) != 4:
-            print "ERROR: Message length not received correctly"
+            print "ERROR: Message length not received correctly (length = {0})".format(len(data))
             connection.close()
             return
 
@@ -79,9 +100,11 @@ def handle(connection):
                 break
 
         # store left-over data for next image (if any)
-        next_buffer = rdata[len(rdata)-(received-unpacked_length):]
+        next_buffer = rdata[unpacked_length:]
+        #print "stored next_buffer:", repr(next_buffer)
+        #sys.stdout.flush()
 
-        rdata = rdata[0:len(rdata)-(received-unpacked_length)]
+        rdata = rdata[0:unpacked_length]
 
         if (unpacked_length != len(rdata)):
             print "ERROR: Package incomplete"
@@ -89,14 +112,32 @@ def handle(connection):
             return
 
         mat, filename = handleimage(rdata)
-        p = predict_proba(mat)
+        mat = np.expand_dims(mat, axis=0)
+        X.append(mat)
+        filenames.append(filename)
 
-        vekstring = p.tostring()
+
+    imagemat = np.vstack(X)
+    # returns (n_images, 4) matrix
+    p = clf.predict_proba(imagemat)
+
+    # send number of images in reply
+    begin= ET.Element("begin")
+    imagessub = ET.SubElement(begin,"images")
+    imagessub.text = str(n_images)
+
+    print "length of begin reply:", len(ET.tostring(begin))
+
+    connection.sendall(ET.tostring(begin))
+    connection.recv(1) # wait ack from client
+
+    for i in range(n_images):
+        vekstring = p[i].tostring()
         encoded = base64.b64encode(vekstring)
 
         response = ET.Element("response")
         imagesub = ET.SubElement(response,"image_name")
-        imagesub.text = filename
+        imagesub.text = filenames[i]
 
         probsub = ET.SubElement(response,"prob_vector_b64")
         probsub.text = encoded
@@ -104,20 +145,35 @@ def handle(connection):
         # simulate network lag
         #time.sleep(np.random.exponential(3.0))
 
+        messagelength = len(ET.tostring(response))
+        sendlength = struct.Struct('<L')
+
+        packedlength = sendlength.pack(messagelength)
+
+        connection.sendall(packedlength)
+
         connection.sendall(ET.tostring(response))
-        connection.close()
+
+    connection.close()
 
 if __name__ == '__main__':
+    assert sys.argv[1] == "pylearn" or sys.argv[1] == "nnforge"
     HOST = ""
     PORT = 10000
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((HOST,PORT))
+    clf = []
+    clfLock = threading.Lock()
+    if sys.argv[1] == "nnforge":
+        clf = Nnforge(lock=clfLock)
+    else:
+        clf = DummyClassifier()
     while True:
         s.listen(1)
         conn, addr = s.accept()
 
         print "Incoming connection from", addr
-        t = threading.Thread(target=handle, args=(conn,))
+        t = threading.Thread(target=handle, args=(conn,clf))
         # threads responsibility is to handle the connection and close it
         t.start()
 

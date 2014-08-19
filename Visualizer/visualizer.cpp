@@ -146,16 +146,7 @@ void Visualizer::classify()
         else
             cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
 
-        //QMessageBox fyiBox;
-        //fyiBox.setIcon(QMessageBox::Information);
-        //fyiBox.setText(tr("luokitellaan..."));
-        //QMessageBox fyiBox = QMessageBox(QMessageBox::Information, tr("Odota"), tr("luokitellaan..."));
-        //fyiBox.setWindowModality(Qt::ApplicationModal);
-        //fyiBox.show();
         boost::thread python_thread(std::system, cmd);
-        //clientWindow->show();
-        //python_thread.start_thread();
-        //fyiBox.close();
         std::ifstream fifoin(fifofile, std::ios::in);
         std::string line;
         boost::regex numExpression("([0-9]+)\\/([0-9]+) classified");
@@ -186,8 +177,8 @@ void Visualizer::classify()
         }
 
         python_thread.join();
-        //clientWindow->close();
-        // delete fifo
+        
+        // delete fifo/pipe
         boost::filesystem::remove(boost::filesystem::path(fifofile));
 
         // read results to file2vek
