@@ -26,7 +26,15 @@ const char* fifofile = "/tmp/DNNFIFO";
 
 double stf(const std::string& arg)
 {
-    return boost::lexical_cast<double>(arg);
+    try
+    {
+        return boost::lexical_cast<double>(arg);
+    }
+    catch (boost::bad_lexical_cast e)
+    {
+        std::cout << "cannot convert string " << arg << std::endl;
+        throw(e);
+    }
 }
 
 Visualizer::Visualizer(QWidget *parent) :
@@ -146,6 +154,7 @@ void Visualizer::classify()
         else
             cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
 
+        std::cout << "cmd: " << cmd << std::endl;
         boost::thread python_thread(std::system, cmd);
         std::ifstream fifoin(fifofile, std::ios::in);
         std::string line;
@@ -164,7 +173,7 @@ void Visualizer::classify()
                 ui->N_images->display((int)num2);
                 ui->progressBar->setValue((unsigned)((float)num1/(float)num2*100.0F));
                 this->repaint();
-                if (num1 == num2)
+                if (num1 >= num2-1)
                     break;
                 std::cout << line << std::endl;
             }
@@ -178,8 +187,10 @@ void Visualizer::classify()
 
         python_thread.join();
         
-        // delete fifo/pipe
-        boost::filesystem::remove(boost::filesystem::path(fifofile));
+        // delete fifos
+        unlink(fifofile);
+        unlink("/tmp/DNNFIFO2");
+
 
         // read results to file2vek
         try
