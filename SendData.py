@@ -26,53 +26,11 @@ def sendImagesAsXML(filenames, socket):
     returns  : nothing
     """
 
-<<<<<<< HEAD
-#    for filename in files:
-#        img = cv2.imread(filename, cv2.IMREAD_COLOR)
-#        if img == None:
-#            raise IOError("could not read image "+filename)
-#        height = img.shape[0]
-#        width = img.shape[1]
-#        vek = np.reshape(img, img.shape[0]*img.shape[1]*img.shape[2])
-#        vekstring = vek.tostring()
-##        strlist = ["%03d" % val for val in vek]
-##        concat = "".join(strlist)
-#        encoded = base64.b64encode(vekstring)
-#
-#        request = ET.Element("request")
-#        imagesub = ET.SubElement(request,"image")
-#
-#        widthsub = ET.SubElement(imagesub,"width")
-#        widthsub.text = str(width)
-#
-#        heightsub = ET.SubElement(imagesub,"height")
-#        heightsub.text = str(height)
-#
-#        rawdatasub = ET.SubElement(imagesub,"rawdata")
-#        rawdatasub.text = encoded
-#        
-#        messagelength = len(ET.tostring(request))
-#
-#        sendlength = struct.Struct('<L')
-#        
-#        packedlength = sendlength.pack(messagelength)
-#    
-#        print "Sending length of message: %i" % messagelength
-#        sock.sendall(packedlength)
-#        print "Sending XML package"
-#        sock.sendall(ET.tostring(request))
-#
-#        time.sleep(2)
 
-    img = cv2.imread(filename, cv2.IMREAD_COLOR)
-    if img == None:
-        raise IOError("could not read image "+filename)
-=======
     for filename in filenames:
         img = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img == None:
             raise IOError("could not read image "+filename)
->>>>>>> 7a7f9dec39b9f16b83723fbf18df8a46f0a5f3b1
 
         height = img.shape[0]
         width = img.shape[1]
@@ -84,33 +42,17 @@ def sendImagesAsXML(filenames, socket):
         request = ET.Element("request")
         imagesub = ET.SubElement(request,"image_data")
 
-<<<<<<< HEAD
 
-    #server_address = ('130.230.177.59', 10000)
-    
-    # Johannes address 130.230.216.69 
-    
-    # server_address = ("130.230.177.59", 10000)
-    server_address = ("localhost", 10000)
-
-    widthsub = ET.SubElement(imagesub,"width")
-    widthsub.text = str(width)
-=======
         widthsub = ET.SubElement(imagesub,"width")
         widthsub.text = str(width)
->>>>>>> 7a7f9dec39b9f16b83723fbf18df8a46f0a5f3b1
+
 
         heightsub = ET.SubElement(imagesub,"height")
         heightsub.text = str(height)
 
-<<<<<<< HEAD
 
-    rawdatasub = ET.SubElement(imagesub,"rawdata")
-    rawdatasub.text = encoded
-=======
         rawdatasub = ET.SubElement(imagesub,"rawdata")
         rawdatasub.text = encoded
->>>>>>> 7a7f9dec39b9f16b83723fbf18df8a46f0a5f3b1
 
         imagenamesub = ET.SubElement(request,"image_name")
         imagenamesub.text = filename
