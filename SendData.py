@@ -15,8 +15,10 @@ import numpy as np
 import cv2
 import base64
 import itertools
+import time
 
 lock = threading.Lock()
+lock2 = threading.Lock()
 
 def sendImagesAsXML(filenames, socket):
     """
@@ -149,11 +151,32 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
     with lock:
         for i in range(len(filenames)):
             outputH.write(filenames[i]+","+vektors[i]+"\n")
-            pipe.write("{0}/{1} classified\n".format(image_n, N_images))
-        pipe.flush()
+            #pipe.write("{0}/{1} classified\n".format(image_n, N_images))
+        #pipe.flush()
 
 
     sock.close()
+
+def readClassifierOutput(N_images, images_offset, pipe_to_visualizer):
+    """used to update the status of classification
+    classifier must write number of image being classified to /tmp/DNNFIFO2"""
+    pipefile = "/tmp/DNNFIFO2"
+    pipe = object
+    with lock2:
+        while True:
+            try:
+                pipe = open(pipefile, "r")
+                break
+            except IOError:
+                time.sleep(0.1)
+        while True:
+            # sample n classified
+            n_classified = int(pipe.readline().strip())
+            if n_classified >= N_images:
+                break
+            pipe_to_visualizer.write("{0}/{1} classified\n".format(images_offset+n_classified+1, N_images))
+            pipe.flush()
+
 
 if __name__ == '__main__':
 
@@ -173,6 +196,7 @@ if __name__ == '__main__':
     fifoname = "/tmp/DNNFIFO"
     pipe = open(fifoname, "w")
 
+    # divide input images into how many groups
     N_PACKETS = 4
     keyfunc = lambda x: x % N_PACKETS
     indexList = sorted(range(len(fl)), key=keyfunc)
@@ -181,6 +205,7 @@ if __name__ == '__main__':
         indexGroups.append(list(g))
     filename_arr = np.array(fl)
 
+    # send each group individually
     for group in indexGroups:
         #print "group:", group
         images = filename_arr[group]
@@ -205,3 +230,8 @@ if __name__ == '__main__':
 
         t = threading.Thread(target=handlereply, args=(sock,fo,pipe,N_images,image_n))
         t.start()
+
+        images_offset = image_n
+        t2 = threading.Thread(target=readClassifierOutput, args=(N_images, images_offset, pipe))
+        t2.start()
+
