@@ -2,13 +2,16 @@ import socket
 import threading
 import struct
 import xml.etree.ElementTree as ET
-import time
 import sys
 
 import numpy as np
 import base64
+import cv2
 
 from NnforgeWrapper import Nnforge
+
+IMAGE_WIDTH = 192
+IMAGE_HEIGHT = 144
 
 class DummyClassifier(object):
     def __init__(self):
@@ -31,6 +34,7 @@ def handleimage(rawdata):
     decoded = np.fromstring(decoded,dtype=np.uint8)
 
     mat = np.reshape(decoded, (height, width, 3))
+    #resized = cv2.resize(mat, (IMAGE_WIDTH, IMAGE_HEIGHT))
     return mat, filename
 
 

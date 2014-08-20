@@ -151,17 +151,19 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
     with lock:
         for i in range(len(filenames)):
             outputH.write(filenames[i]+","+vektors[i]+"\n")
-            #pipe.write("{0}/{1} classified\n".format(image_n, N_images))
-        #pipe.flush()
+            pipe.write("{0}/{1} classified\n".format(image_n, N_images))
+        pipe.flush()
 
 
     sock.close()
 
+# DON'T USE; BUGGY
 def readClassifierOutput(N_images, images_offset, pipe_to_visualizer):
     """used to update the status of classification
     classifier must write number of image being classified to /tmp/DNNFIFO2"""
     pipefile = "/tmp/DNNFIFO2"
     pipe = object
+    oldvalue = 0
     with lock2:
         while True:
             try:
@@ -171,11 +173,25 @@ def readClassifierOutput(N_images, images_offset, pipe_to_visualizer):
                 time.sleep(0.1)
         while True:
             # sample n classified
+            #try:
+            #try:
             n_classified = int(pipe.readline().strip())
-            if n_classified >= N_images:
-                break
+            print "ready to write images_offset + n_classified + 1 = {0} + {1} + 1 = {2}".format(images_offset, n_classified,
+                                                                                                     images_offset+n_classified+1)
+            #except ValueError:
+                #time.sleep(0.01)
+                #continue
+            #if not n_classified > oldvalue:
+                #time.sleep(0.01)
+                #continue
+            oldvalue = n_classified
+            #except ValueError:
+                #time.sleep(0.01)
             pipe_to_visualizer.write("{0}/{1} classified\n".format(images_offset+n_classified+1, N_images))
             pipe.flush()
+            if n_classified >= N_images:
+                break
+
 
 
 if __name__ == '__main__':
@@ -232,6 +248,6 @@ if __name__ == '__main__':
         t.start()
 
         images_offset = image_n
-        t2 = threading.Thread(target=readClassifierOutput, args=(N_images, images_offset, pipe))
-        t2.start()
+        #t2 = threading.Thread(target=readClassifierOutput, args=(N_images, images_offset, pipe))
+        #t2.start()
 
