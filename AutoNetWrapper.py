@@ -52,7 +52,6 @@ class AutoNet(object):
 
 
     # Public function, predicts class according to given image
-
     def predict_proba(self,imagedata):
 
         features = self.__feature_extraction__(imagedata)
