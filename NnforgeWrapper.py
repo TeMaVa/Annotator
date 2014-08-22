@@ -2,10 +2,6 @@ import numpy as np
 import subprocess
 import os
 import cv2
-import threading
-
-def sigmoid(x):
-    return 1. / (1 + np.exp(-x))
 
 class Nnforge(object):
 
@@ -17,12 +13,14 @@ class Nnforge(object):
     # in prediction
     def __init__(self,
                  lock,
+                 isColor = True,
                  bin_dir = "/home/johannes/Lataukset/nnForge/bin",
                  input_directory="/home/johannes/nnforge_git/input_data/autoverkko/",
                  working_directory="/home/johannes/nnforge_git/working_data/autoverkko/",
                  ):
 
         self.bin_dir = bin_dir
+        self.isColor = isColor
         self.binary = os.path.join(self.bin_dir, "autoverkko")
         self.i_dir = input_directory
         self.image_dir = os.path.join(input_directory, "special")
@@ -71,11 +69,12 @@ class Nnforge(object):
     def predict_proba(self, X):
         lines = []
         with self.lock:
-            self.__writeImages(X)
+            self.__writeImages__(X)
             cmd_prep = [self.binary,
                    "prepare_testing_data",
                     "--prediction_annotation", os.path.basename(self.annotationfile),
                     "--testing_folder", "special",
+                    "--is_color", "true" if self.isColor else "false",
                        ]
             cmd_predict = [self.binary,
                         "test"]
@@ -92,11 +91,12 @@ class Nnforge(object):
     def predict(self, X):
         lines = []
         with self.lock:
-            self.__writeImages(X)
+            self.__writeImages__(X)
             cmd_prep = [self.binary,
                    "prepare_testing_data",
                     "--prediction_annotation", os.path.basename(self.annotationfile),
                     "--testing_folder", "special",
+                    "--is_color", "true" if self.isColor else "false",
                         ]
             cmd_predict = [self.binary,
                         "test"]
@@ -109,7 +109,7 @@ class Nnforge(object):
 
         return predVek
 
-    def __writeImages(self, X):
+    def __writeImages__(self, X):
         f = open(self.annotationfile, "w")
         for i in range(X.shape[0]):
             imgName = os.path.join(self.image_dir, "image{0}.png".format(i))

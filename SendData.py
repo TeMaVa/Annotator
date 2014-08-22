@@ -15,17 +15,15 @@ import numpy as np
 import cv2
 import base64
 import itertools
-import time
 
 lock = threading.Lock()
-lock2 = threading.Lock()
 
 def sendImagesAsXML(filenames, socket):
     """
     Read image files and send contents over network
     filenames : filename of image
-    socket   : where to send data
-    returns  : nothing
+    socket    : where to send data
+    returns   : nothing
     """
 
 
@@ -71,9 +69,13 @@ def sendImagesAsXML(filenames, socket):
         sock.sendall(ET.tostring(request))
 
 def handlereply(sock, outputH, pipe, N_images, image_n):
-    """this function waits for the reply from the server,
-    writes result to output file
-    and then closes the connection."""
+    """This function waits for the reply from the server,
+    writes results to output file, and then closes the connection.
+    sock     = socket to server
+    outputH  = prediction file handle (read by Visualizer)
+    pipe     = named pipe to Visualizer (used to update status)
+    N_images = how many images there are in total
+    image_n  = first image of this packet"""
 
     # receive n_images
     data = sock.recv(512).strip()
@@ -146,43 +148,22 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
         veks = ",".join([str(elem) for elem in vek])
         vektors.append(veks)
 
-
-    #print "received vector:", vek
+    # write prediction values to .csv, and report classification
+    # status to Visualizer
     with lock:
         for i in range(len(filenames)):
             outputH.write(filenames[i]+","+vektors[i]+"\n")
-            #pipe.write("{0}/{1} classified\n".format(image_n, N_images))
-        #pipe.flush()
+            pipe.write("{0}/{1} classified\n".format(image_n, N_images))
+        pipe.flush()
 
 
     sock.close()
-
-def readClassifierOutput(N_images, images_offset, pipe_to_visualizer):
-    """used to update the status of classification
-    classifier must write number of image being classified to /tmp/DNNFIFO2"""
-    pipefile = "/tmp/DNNFIFO2"
-    pipe = object
-    with lock2:
-        while True:
-            try:
-                pipe = open(pipefile, "r")
-                break
-            except IOError:
-                time.sleep(0.1)
-        while True:
-            # sample n classified
-            n_classified = int(pipe.readline().strip())
-            if n_classified >= N_images:
-                break
-            pipe_to_visualizer.write("{0}/{1} classified\n".format(images_offset+n_classified+1, N_images))
-            pipe.flush()
 
 
 if __name__ == '__main__':
 
     server_address = ("localhost", 10000)
     #server_address = ('130.230.177.59', 10000)
-
 
     # [(filename, class_label)]
     annotFile = sys.argv[1]
@@ -223,15 +204,10 @@ if __name__ == '__main__':
         sock.sendall(ET.tostring(begin))
         sock.recv(1) # number of images received
 
-
         #print "sending", filename
         # send the image
         sendImagesAsXML(images, sock)
 
         t = threading.Thread(target=handlereply, args=(sock,fo,pipe,N_images,image_n))
         t.start()
-
-        images_offset = image_n
-        t2 = threading.Thread(target=readClassifierOutput, args=(N_images, images_offset, pipe))
-        t2.start()
 

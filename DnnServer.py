@@ -2,13 +2,17 @@ import socket
 import threading
 import struct
 import xml.etree.ElementTree as ET
-import time
 import sys
 
 import numpy as np
 import base64
+import cv2
 
 from NnforgeWrapper import Nnforge
+from AutoNetWrapper import AutoNet
+
+IMAGE_WIDTH = 768
+IMAGE_HEIGHT = 288
 
 from AutoNetWrapper import AutoNet
 
@@ -33,7 +37,8 @@ def handleimage(rawdata):
     decoded = np.fromstring(decoded,dtype=np.uint8)
 
     mat = np.reshape(decoded, (height, width, 3))
-    return mat, filename
+    resized = cv2.resize(mat, (IMAGE_WIDTH, IMAGE_HEIGHT))
+    return resized, filename
 
 
 def handle(connection, clf):
@@ -42,7 +47,6 @@ def handle(connection, clf):
 
     # first, read n_images
     data = connection.recv(512).strip()
-    #print "header data:", data
     XML = ET.fromstring(data)
     n_images = int(XML[0].text)
 
@@ -60,23 +64,17 @@ def handle(connection, clf):
 
         # first 4 bytes designate message length
         if len(next_buffer) > 0:
-            #print "getting message length from buffer"
-            # problem: buffer too short
             data = next_buffer[0:4]
             next_buffer = next_buffer[4:]
-            #print "data = {0}, next_buffer = {1}".format(repr(data), next_buffer[0:20])
             # if parts of message length got spilled to next packet
             if len(data) < 4:
                 # for some reason, the '\r' character gets skipped so we need to take that into account
                 rem = connection.recv(4-len(data)-1)
-                #print "remainder = {0}".format(repr(rem))
                 data = data+"\r"+rem
-            #sys.stdout.flush()
 
         else:
             data = connection.recv(4).strip()
 
-        #print "message length", bytearray(data)
         # Check if message length has been received correctly
         if len(data) != 4:
             print "ERROR: Message length not received correctly (length = {0})".format(len(data))
@@ -88,7 +86,6 @@ def handle(connection, clf):
 
         unpacked_length = long(unpacked_length[0])
 
-        #print "Message length received:%i" % unpacked_length
 
         rdata = next_buffer
         recvalue = 1024
@@ -129,8 +126,6 @@ def handle(connection, clf):
     imagessub = ET.SubElement(begin,"images")
     imagessub.text = str(n_images)
 
-    print "length of begin reply:", len(ET.tostring(begin))
-
     connection.sendall(ET.tostring(begin))
     connection.recv(1) # wait ack from client
 
@@ -169,11 +164,9 @@ if __name__ == '__main__':
     clf = []
     clfLock = threading.Lock()
     if sys.argv[1] == "nnforge":
-        clf = Nnforge(lock=clfLock)
-    elif sys.argv[1] == "pylearn":
-        clf = AutoNet()
+        clf = Nnforge(lock=clfLock, isColor=False)
     else:
-        clf = DummyClassifier()
+        clf = AutoNet()
     while True:
         s.listen(1)
         conn, addr = s.accept()
