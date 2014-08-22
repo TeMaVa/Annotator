@@ -10,6 +10,8 @@ import base64
 
 from NnforgeWrapper import Nnforge
 
+from AutoNetWrapper import AutoNet
+
 class DummyClassifier(object):
     def __init__(self):
         pass
@@ -120,7 +122,8 @@ def handle(connection, clf):
     imagemat = np.vstack(X)
     # returns (n_images, 4) matrix
     p = clf.predict_proba(imagemat)
-
+    print p.shape
+    print p
     # send number of images in reply
     begin= ET.Element("begin")
     imagessub = ET.SubElement(begin,"images")
@@ -157,7 +160,8 @@ def handle(connection, clf):
     connection.close()
 
 if __name__ == '__main__':
-    assert sys.argv[1] == "pylearn" or sys.argv[1] == "nnforge"
+    
+#    assert sys.argv[1] == "pylearn" or sys.argv[1] == "nnforge"
     HOST = ""
     PORT = 10000
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -166,6 +170,8 @@ if __name__ == '__main__':
     clfLock = threading.Lock()
     if sys.argv[1] == "nnforge":
         clf = Nnforge(lock=clfLock)
+    elif sys.argv[1] == "pylearn":
+        clf = AutoNet()
     else:
         clf = DummyClassifier()
     while True:
