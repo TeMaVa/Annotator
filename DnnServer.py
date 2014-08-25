@@ -14,7 +14,7 @@ from AutoNetWrapper import AutoNet
 IMAGE_WIDTH = 768
 IMAGE_HEIGHT = 288
 
-from AutoNetWrapper import AutoNet
+
 
 class DummyClassifier(object):
     def __init__(self):
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     if sys.argv[1] == "nnforge":
         clf = Nnforge(lock=clfLock, isColor=False)
     else:
-        clf = AutoNet()
+        clf = AutoNet(lock=clfLock)
     while True:
         s.listen(1)
         conn, addr = s.accept()

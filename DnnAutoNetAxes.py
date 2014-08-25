@@ -195,7 +195,7 @@ if __name__ == '__main__':
     features = FeatureExtraction(imagedata)
       
     
-#    [flippedimages,croppedimages] = DataAugmentation(features)
+    [flippedimages,croppedimages] = DataAugmentation(features)
 #    
 #    
 #    

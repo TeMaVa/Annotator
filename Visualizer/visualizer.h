@@ -37,21 +37,27 @@ private:
     DnnClient *clientWindow;
 	QMenu *fileMenu;
 	QMenu *helpMenu;
+    QMenu *settingsMenu;
 	QAction *openAct;
     QAction *openClient;
 	QAction *exitAct;
 	QAction *aboutQtAct;
+    QAction *settingsAct;
     file2vek_t file2vek;
     std::vector<std::string>::iterator fileit;
     std::vector<std::string> paths;
     boost::filesystem::path annotationPath;
     path_vek_t imgPaths;
     QVector<double> x;
+    QString serverAddress_;
+    int serverPort_;
+    int n_packets_;
 private slots:
 	void seurBtnClick();
 	void edelBtnClick();
     void open();
     void classify();
+    void serverSettings();
 };
 
 #endif // VISUALIZER_H

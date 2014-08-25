@@ -24,6 +24,24 @@
 
 const char* fifofile = "/tmp/DNNFIFO";
 
+class Worker{
+public:
+  Worker(const char* cmd)
+  {
+      command = cmd;
+      finished = false;
+  }
+
+  void Do(){
+    m_ReturnValue = std::system(command);
+    finished = true;
+  }
+  int m_ReturnValue;
+  const char* command;
+  bool finished;
+};
+
+
 double stf(const std::string& arg)
 {
     try
@@ -63,6 +81,10 @@ Visualizer::Visualizer(QWidget *parent) :
     ui->plotBox->yAxis->setRange(0, 1.3);
     ui->plotBox->graph(0)->setLineStyle(QCPGraph::lsImpulse);
     clientWindow = new DnnClient;
+
+    serverAddress_ = tr("localhost");
+    serverPort_ = 10000;
+    n_packets_ = 1;
 }
 
 Visualizer::~Visualizer()
@@ -79,6 +101,9 @@ void Visualizer::createMenus()
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAct);
 
+    settingsMenu = ui->menuBar->addMenu(tr("Asetukset"));
+    settingsMenu->addAction(settingsAct);
+
 	helpMenu = ui->menuBar->addMenu(tr("&Apua"));
 	helpMenu->addAction(aboutQtAct);
 }
@@ -94,6 +119,9 @@ void Visualizer::createActions()
     openClient = new QAction(tr("Luokita.."), this);
     openClient->setStatusTip(tr("Luokita kansion kuvat"));
     connect(openClient, SIGNAL(triggered()), this, SLOT(classify()));
+
+    settingsAct = new QAction(tr("Serveri..."), this);
+    connect(settingsAct, SIGNAL(triggered()), this, SLOT(serverSettings()));
 
 	exitAct = new QAction(tr("&Lopeta"), this);
 	exitAct->setShortcuts(QKeySequence::Quit);
@@ -112,6 +140,16 @@ void Visualizer::connectAll()
 {
 	connect(ui->seurBtn, SIGNAL(clicked()), this, SLOT(seurBtnClick()));
 	connect(ui->edelBtn, SIGNAL(clicked()), this, SLOT(edelBtnClick()));
+}
+
+void Visualizer::serverSettings()
+{
+    QString serverAddress = QInputDialog::getText(this, tr("Serverin osoite"), tr("Serverin osoite"));
+    int serverPort = QInputDialog::getInt(this, tr("Serverin portti"), tr("Porttinumero"), 0, 0);
+    int n_packets = QInputDialog::getInt(this, tr("Pakettien määrä"), tr("Pakettien määrä"), 1, 1);
+    serverAddress_ = serverAddress;
+    serverPort_ = serverPort;
+    n_packets_ = n_packets;
 }
 
 void Visualizer::classify()
@@ -152,15 +190,32 @@ void Visualizer::classify()
         if (debug)
             cmd = ("python2 ../SendData.py "  "mylongest4annotation.csv" " " + receivedFile).c_str();
         else
-            cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
+            cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile +  " " + serverAddress_.toStdString() + " "
+                   + boost::lexical_cast<std::string>(serverPort_) + " " + boost::lexical_cast<std::string>(n_packets_)).c_str();
 
         std::cout << "cmd: " << cmd << std::endl;
-        boost::thread python_thread(std::system, cmd);
+
+
+        Worker worker(cmd);
+        boost::function<void()> th_func = boost::bind(&Worker::Do, &worker);
+        boost::thread python_thread(th_func);
+
+
+//        boost::thread python_thread(std::system, cmd);
         std::ifstream fifoin(fifofile, std::ios::in);
         std::string line;
         boost::regex numExpression("([0-9]+)\\/([0-9]+) classified");
         while (true)
         {
+            if (worker.finished)
+            {
+                if (worker.m_ReturnValue != 0)
+                {
+                    QMessageBox::critical(this, tr("VIRHE"), tr("Yhteyttä ei voitu luoda."));
+//                    qApp->exit(1);
+                    return;
+                }
+            }
             std::getline(fifoin, line);
             if (line.size() > 0)
             {
