@@ -162,7 +162,9 @@ def handlereply(sock, outputH, pipe, N_images, image_n):
 
 if __name__ == '__main__':
 
-    server_address = ("localhost", 10000)
+    # annotation file, output file, server_address, server_port, n_packets
+
+    #server_address = ("localhost", 10000)
     #server_address = ('130.230.177.59', 10000)
 
     # [(filename, class_label)]
@@ -177,8 +179,13 @@ if __name__ == '__main__':
     fifoname = "/tmp/DNNFIFO"
     pipe = open(fifoname, "w")
 
+    server_ip = sys.argv[3]
+    server_port = int(sys.argv[4])
+
+    server_address = (server_ip, server_port)
+
     # divide input images into how many groups
-    N_PACKETS = int(sys.argv[3])
+    N_PACKETS = int(sys.argv[5])
     keyfunc = lambda x: x % N_PACKETS
     indexList = sorted(range(len(fl)), key=keyfunc)
     indexGroups = []

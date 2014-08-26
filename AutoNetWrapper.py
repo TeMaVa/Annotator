@@ -18,13 +18,18 @@ import cv2
 class AutoNet(object):
 
     # Initialize class, load trained model
-    def __init__(self, modelpath = "/home/vartiai6/Autoproject/4layermaxout.mdl",
-                 preprocessorpath = "/home/vartiai6/Autoproject/4layermaxoutpreprocessor.pkl"):
+    def __init__(self, lock, modelpath = "/home/vartiai6/Autoproject/4layermaxoutbest.mdl",
+                 preprocessorpath = "/home/vartiai6/Autoproject/4layermaxoutpreprocessorbest.pkl"):
 
+        self.lock = lock
         self.modelpath = modelpath
         self.model = serial.load(modelpath)
         self.preprocessorpath = preprocessorpath
         self.preprocessor = serial.load(preprocessorpath)
+        
+        X = self.model.get_input_space().make_theano_batch()
+        Y = self.model.fprop( X )
+        self.f = function( [X], Y )
 
     # This feature extraction function must be exactly the same as in training phase
     def __feature_extraction__(self,imagedata):
@@ -54,29 +59,31 @@ class AutoNet(object):
     # Public function, predicts class according to given image
     def predict_proba(self,imagedata):
 
-        features = self.__feature_extraction__(imagedata)
+        with self.lock:
+            features = self.__feature_extraction__(imagedata)
 
-        features = np.float32(features)
-        features = np.transpose(features,(3,1,2,0))
-
-        DDM = dense_design_matrix.DenseDesignMatrix(
-        topo_view = features,
-        axes=('c', 0, 1, 'b'))
-
-        # Esikäsittely
-
-        DDM.apply_preprocessor(self.preprocessor, can_fit = True)
-
-        # Theano stuff, pitäisikö nämä luoda jo olion alustuksessa
-        X = self.model.get_input_space().make_theano_batch()
-        Y = self.model.fprop( X )
-        f = function( [X], Y )
-
-        predictions = f(DDM.get_topological_view(DDM.X))
-
-        # Tarpeellinen enää?
-        predictions = np.fliplr(predictions)
-
-        predictions = np.float64(predictions)
-
-        return predictions
+            features = np.float32(features)
+            features = np.transpose(features,(3,1,2,0))
+    
+            DDM = dense_design_matrix.DenseDesignMatrix(
+            topo_view = features,
+            axes=('c', 0, 1, 'b'))
+    
+            # Esikäsittely
+    
+            DDM.apply_preprocessor(self.preprocessor, can_fit = True)
+    
+            # Theano stuff, pitäisikö nämä luoda jo olion alustuksessa
+#            X = self.model.get_input_space().make_theano_batch()
+#            Y = self.model.fprop( X )
+#            f = function( [X], Y )
+            f = self.f
+    
+            predictions = f(DDM.get_topological_view(DDM.X))
+    
+            # Tarpeellinen enää?
+            predictions = np.fliplr(predictions)
+    
+            predictions = np.float64(predictions)
+    
+            return predictions
