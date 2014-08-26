@@ -1,3 +1,5 @@
+#include <QInputDialog>
+
 #include "visualizer.h"
 #include "ui_visualizer.h"
 #include "dnnclient.h"
@@ -7,7 +9,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
 
 #include <fstream>
 #include <algorithm>
@@ -120,6 +121,12 @@ void Visualizer::classify()
     QString pathName = QFileDialog::getExistingDirectory(this, tr("Avaa kuvakansio"));
     if (!pathName.isEmpty())
     {
+        bool ok;
+        int packets = QInputDialog::getInt(this, tr("Kuvapakettien määrä"),
+                                             tr("Kuvapakettien määrä:"),
+                                             1, 1, 10000, 1, &ok);
+        if (!ok)
+            return;
         file2vek.clear();
         annotationPath = boost::filesystem::path(pathName.toStdString()) / "annotationClient.csv";
         boost::filesystem::path imgPath(pathName.toStdString());
@@ -152,7 +159,7 @@ void Visualizer::classify()
         if (debug)
             cmd = ("python2 ../SendData.py "  "mylongest4annotation.csv" " " + receivedFile).c_str();
         else
-            cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile).c_str();
+            cmd = ("python2 ../SendData.py " + annotationPath.string() + " " + receivedFile + " " + boost::lexical_cast<std::string>(packets)).c_str();
 
         std::cout << "cmd: " << cmd << std::endl;
         boost::thread python_thread(std::system, cmd);
@@ -189,7 +196,7 @@ void Visualizer::classify()
         
         // delete fifos
         unlink(fifofile);
-        unlink("/tmp/DNNFIFO2");
+        //unlink("/tmp/DNNFIFO2");
 
 
         // read results to file2vek

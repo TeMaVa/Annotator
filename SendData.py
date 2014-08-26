@@ -178,7 +178,7 @@ if __name__ == '__main__':
     pipe = open(fifoname, "w")
 
     # divide input images into how many groups
-    N_PACKETS = 4
+    N_PACKETS = int(sys.argv[3])
     keyfunc = lambda x: x % N_PACKETS
     indexList = sorted(range(len(fl)), key=keyfunc)
     indexGroups = []

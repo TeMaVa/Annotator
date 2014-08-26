@@ -6,65 +6,37 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>466</width>
-    <height>239</height>
+    <width>340</width>
+    <height>178</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Please, be patient</string>
   </property>
-  <widget class="QProgressBar" name="progressBar">
+  <widget class="QLineEdit" name="lineEdit">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>150</y>
-     <width>291</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>0</number>
-   </property>
-  </widget>
-  <widget class="QLCDNumber" name="image_n">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
+     <x>170</x>
      <y>60</y>
-     <width>64</width>
-     <height>23</height>
+     <width>51</width>
+     <height>22</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QLCDNumber" name="N_images">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>60</y>
-     <width>64</width>
-     <height>23</height>
-    </rect>
+   <property name="text">
+    <string>1</string>
    </property>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>40</x>
      <y>60</y>
-     <width>21</width>
-     <height>31</height>
+     <width>111</width>
+     <height>21</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <family>padmaa</family>
-     <pointsize>18</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
    <property name="text">
-    <string>/</string>
+    <string>Pakettien määrä:</string>
    </property>
   </widget>
  </widget>
