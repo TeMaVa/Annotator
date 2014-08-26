@@ -23,4 +23,9 @@ FORMS    += mainwindow.ui
 RESOURCES += \
     annotator.qrc
 
-OTHER_FILES +=
+OTHER_FILES += \
+    ../images/justnn.gif \
+    ../images/accessories-text-editor.png \
+    ../images/arrow-left.png \
+    ../images/arrow-right.png \
+    ../images/open.png
